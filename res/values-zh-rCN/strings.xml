@@ -16,6 +16,42 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!--
+    <string name="text_update_type_incremental">增量更新</string>
+    <string name="text_update_type_full">全量更新</string>
+    -->
+    <string name="setting_auto_append_flashing">附加ZIP刷入</string>
+    <string name="menu_notices">exTHmUI公告</string>
+    <string name="title_advanced_settings">高级设置</string>
+    <string name="setting_auto_update">自动更新</string>
+    <!--
+    <string name="setting_auto_updates_check">自动检查更新</string>
+    <string name="setting_auto_updates_check_interval_daily">每天一次</string>
+    <string name="setting_auto_updates_check_interval_weekly">每周一次</string>
+    <string name="setting_auto_updates_check_interval_monthly">每月一次</string>
+    <string name="setting_auto_updates_check_interval_never">从不</string>
+    -->
+    <string name="setting_auto_updates_download">自动下载更新</string>
+    <string name="setting_auto_updates_download_wifi">使用WLAN</string>
+    <string name="setting_auto_updates_download_data">使用移动数据</string>
+    <string name="setting_auto_updates_download_wifi_and_data">使用WLAN和移动数据</string>
+    <string name="setting_auto_updates_download_never">从不</string>
+    <string name="setting_download_settings">下载设置</string>
+    <string name="setting_update_type">更新类型</string>
+    <!--
+    <string name="setting_mobile_network_warning">移动数据网络警告</string>
+    -->
+    <string name="setting_save_path">下载路径</string>
+    <!--
+    <string name="setting_user_agent">UA设置</string>
+    -->
+    <string name="setting_update_settings">更新设置</string>
+    <string name="setting_update_server_url">更新服务器URL</string>
+    <string name="setting_auto_delete_updates">安装完毕后删除更新</string>
+    <string name="setting_clean_cache_after_update">安装完毕后清除缓存</string>
+    <string name="setting_clean_cache_after_update_summary">安装完毕后清除Dalvik/ART缓存</string>
+    <string name="setting_append_ors_title">附加OpenRecoveryScript</string>
+
     <string name="app_name">系统更新</string>
     <string name="display_name">系统更新</string>
     <string name="verification_failed_notification">验证失败</string>
@@ -61,11 +97,10 @@
     <string name="snack_download_verification_failed">验证更新失败。</string>
     <string name="snack_download_verified">下载完毕。</string>
     <string name="snack_update_not_installable">在当前的版本上无法安装更新。</string>
-    <string name="header_title_text">LineageOS\n%1$s</string>
     <string name="header_android_version">Android <xliff:g id="version" example="7.1.2">%1$s</xliff:g></string>
     <string name="header_last_updates_check">最后检查： <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
-    <string name="list_build_version">LineageOS <xliff:g id="version" example="14.1">%1$s</xliff:g></string>
-    <string name="list_build_version_date">LineageOS <xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
+    <string name="list_build_version">{os_name} <xliff:g id="version" example="14.1">%1$s</xliff:g></string>
+    <string name="list_build_version_date">{os_name} <xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
     <string name="list_download_progress_new"><xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g> 的 <xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g> • <xliff:g id="percentage" example="56">%3$s</xliff:g></string>
     <string name="list_download_progress_eta_new"><xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g> 的 <xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g> (<xliff:g id="eta" example="3 minutes left">%3$s</xliff:g>) • <xliff:g id="percentage" example="56">%4$s</xliff:g></string>
     <string name="list_verifying_update">正在验证更新</string>
@@ -108,4 +143,5 @@
     <string name="new_updates_channel_title">新的更新</string>
     <string name="ongoing_channel_title">正在下载</string>
     <string name="update_failed_channel_title">更新失败</string>
+    <string name="setting_advanced_warning">注意：如果您不了解这些参数的含义，请不要更改它们</string>
 </resources>

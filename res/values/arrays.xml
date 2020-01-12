@@ -1,4 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!--
+    <string-array name="auto_updates_check_entries">
+        <item>@string/setting_auto_updates_check_interval_daily</item>
+        <item>@string/setting_auto_updates_check_interval_weekly</item>
+        <item>@string/setting_auto_updates_check_interval_monthly</item>
+        <item>@string/setting_auto_updates_check_interval_never</item>
+    </string-array>
+    -->
+    <string-array name="auto_updates_check_values">
+        <item>daily</item>
+        <item>weekly</item>
+        <item>monthly</item>
+        <item>never</item>
+    </string-array>
+    <string-array name="auto_updates_download_entries">
+        <item>@string/setting_auto_updates_download_wifi</item>
+        <item>@string/setting_auto_updates_download_data</item>
+    </string-array>
+    <string-array name="auto_append_zip_flashing_entries">
+        <item>@string/setting_append_ors_magisk</item>
+        <item>@string/setting_append_ors_gapps</item>
+    </string-array>
+    <string-array name="auto_updates_download_values">
+        <item>wifi</item>
+        <item>data</item>
+    </string-array>
+    <string-array name="auto_append_zip_flashing_values">
+        <item>magisk</item>
+        <item>gapps</item>
+    </string-array>
+    <!--
+    <string-array name="update_type_entries">
+        <item>@string/text_update_type_full</item>
+        <item>@string/text_update_type_incremental</item>
+    </string-array>
+    <string-array name="update_type_values">
+        <item>full</item>
+        <item>incremental</item>
+    </string-array>
+    -->
+
 <!--
      Copyright (C) 2019 The LineageOS Project
 
@@ -14,11 +57,21 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
+
     <string-array name="menu_auto_updates_check_interval_entries" translatable="false">
         <item>@string/menu_auto_updates_check_interval_never</item>
         <item>@string/menu_auto_updates_check_interval_daily</item>
         <item>@string/menu_auto_updates_check_interval_weekly</item>
         <item>@string/menu_auto_updates_check_interval_monthly</item>
+    </string-array>
+    <!-- Reply Preference -->
+    <string-array name="reply_entries">
+        <item>Reply</item>
+        <item>Reply to all</item>
+    </string-array>
+
+    <string-array name="reply_values">
+        <item>reply</item>
+        <item>reply_all</item>
     </string-array>
 </resources>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 The app Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+                                      xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory app:title="@string/setting_auto_update">
+        <MultiSelectListPreference
+                android:key="auto_download"
+                android:title="@string/setting_auto_updates_download"
+                android:entries="@array/auto_updates_download_entries"
+                android:entryValues="@array/auto_updates_download_values" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/setting_download_settings">
+        <EditTextPreference
+                android:key="download_path"
+                android:title="@string/setting_save_path"
+                app:useSimpleSummaryProvider="true"
+        />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/setting_update_settings">
+        <SwitchPreference
+                android:key="clean_cache_after_install"
+                android:title="@string/setting_clean_cache_after_update"
+                android:defaultValue="false"
+                android:summary="@string/setting_clean_cache_after_update_summary" />
+        <MultiSelectListPreference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/auto_append_zip_flashing_entries"
+            android:entryValues="@array/auto_append_zip_flashing_values"
+            android:key="auto_append_zip"
+            android:title="@string/setting_auto_append_flashing" />
+        <EditTextPreference
+                android:key="update_channel"
+                android:title="@string/setting_update_server_url"
+                android:defaultValue="@string/updater_server_url"
+                app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+                android:key="append_ors"
+                android:title="@string/setting_append_ors_title"
+                android:selectable="false"
+                android:defaultValue=" "
+                app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

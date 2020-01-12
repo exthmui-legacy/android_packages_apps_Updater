@@ -52,4 +52,11 @@
         android:layout_marginBottom="16dp"
         android:text="@string/menu_ab_perf_mode"
         android:textSize="16sp" />
+    <Button
+            android:text="@string/title_advanced_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" style="@style/Widget.AppCompat.Button.Borderless"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:id="@+id/preferences_advanced_settings"/>
 </LinearLayout>
