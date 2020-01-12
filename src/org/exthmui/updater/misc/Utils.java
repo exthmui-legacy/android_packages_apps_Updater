@@ -131,14 +131,10 @@ public class Utils {
     }
 
     public static boolean canInstall(UpdateBaseInfo update) {
-        /*
-            判断需求最低版本构建时间
-        */
-        int date = SystemProperties.getInt(Constants.PROP_BUILD_DATE,0);
-        if(update.getRequirement() >= date && update.getPType().equals("incremental")){
-            return false;
-        }
-        return (SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) ||
+        return  update.getDownloadUrl() != ""  && update.getDownloadUrl() != null  &&
+                !(update.getRequirement() >= SystemProperties.getInt(Constants.PROP_BUILD_DATE,0) &&
+                update.getPType().equals("incremental")) &&
+                (SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) ||
                 update.getTimestamp() > SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) &&
                 update.getVersion().equalsIgnoreCase(
                         SystemProperties.get(Constants.PROP_BUILD_VERSION));
