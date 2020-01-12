@@ -27,7 +27,6 @@ LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 
 include $(BUILD_PACKAGE)
 
-
 include $(CLEAR_VARS)
 LOCAL_MODULE := UpdaterStudio
 LOCAL_MODULE_CLASS := FAKE

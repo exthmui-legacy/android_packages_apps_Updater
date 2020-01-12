@@ -46,6 +46,7 @@ public class UpdateBase implements UpdateBaseInfo {
         mIncr = update.getIncr();
         mPType = update.getPType();
         mChangeLog = update.getChangeLog();
+        mImageUrl = update.getImageUrl();
         mDownloadUrl = update.getDownloadUrl();
         mDownloadId = update.getDownloadId();
         mTimestamp = update.getTimestamp();

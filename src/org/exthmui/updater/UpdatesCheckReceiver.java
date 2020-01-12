@@ -36,6 +36,7 @@ import org.exthmui.updater.misc.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 
 public class UpdatesCheckReceiver extends BroadcastReceiver {
@@ -102,6 +103,17 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
                             .apply();
                     // In case we set a one-shot check because of a previous failure
                     cancelUpdatesCheck(context);
+                    SharedPreferences mSharedPreferences = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
+                    Set<String> tAutoDlSet = mSharedPreferences.getStringSet("auto_download",null);
+
+                    /**
+                     * 自动下载
+                     */
+                    if (tAutoDlSet != null) {
+                        if (tAutoDlSet.contains(Utils.isOnWifiOrEthernet(context))) {
+                            //return;
+                        }
+                    }
                 } catch (IOException | JSONException e) {
                     Log.e(TAG, "Could not parse updates list, scheduling new check", e);
                     scheduleUpdatesCheck(context);
@@ -121,7 +133,8 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
 
             @Override
             public void onSuccess(File destination) {
-                try {
+                jsonNew2.renameTo(json2);
+                /*try {
                     if (json2.exists() && Utils.checkForNewUpdates(json2, jsonNew2, false)) {
                         showNotification(context);
                         updateRepeatingUpdatesCheck(context);
@@ -129,7 +142,7 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
                     jsonNew2.renameTo(json2);
                 } catch (IOException | JSONException e) {
                     Log.e(TAG, "Could not parse nnotice list", e);
-                }
+                }*/
             }
         };
 

@@ -30,6 +30,8 @@ import android.os.storage.StorageManager;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import org.exthmui.updater.model.Notice;
@@ -60,7 +62,8 @@ public class Utils {
     }
 
     public static File getDownloadPath(Context context) {
-        return new File(context.getString(R.string.download_path));
+        String path = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).getString("download_path",context.getString(R.string.download_path));
+        return new File(path == null || path == "" ? path : context.getString(R.string.download_path));
     }
 
     public static File getExportPath(Context context) {
@@ -126,6 +129,9 @@ public class Utils {
         if(!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))){
             Log.d(TAG, update.getName() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
             return false;
+        }if(update.getVersion().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL)) < 0){
+            Log.d(TAG, update.getName() + " is older than current incremental version");
+            return false;
         }
         return true;
     }
@@ -178,7 +184,7 @@ public class Utils {
         updates.sort(new Comparator<UpdateInfo>() {
             @Override
             public int compare(UpdateInfo o1, UpdateInfo o2) {
-                return -(o1.getIncr().compareTo(o2.getIncr()));
+                return o1.getIncr().compareTo(o2.getIncr());
             }
         });
         //遍历判断Target与Current版本Incr大小，并循环setChangeLog();合并log.
@@ -189,26 +195,26 @@ public class Utils {
         while (listIterator.hasNext()){
             Update u=(Update)listIterator.next();
             if (u.getIncr().compareTo(incrementalVersion) > 0){
-                changelog=u.getChangeLog()+"\n"+changelog;
+                changelog=u.getChangeLog()+(changelog == null || changelog == "" ? "" : "\n")+changelog;
                 u.setChangeLog(changelog);
                 listIterator.remove();
-                if(listIterator.hasNext()){
+                /*if(listIterator.hasNext()){
                     listIterator.next();
-                }
+                }*/
                 listIterator.add(u);
                 //listIterator.previous();
-            }else if (u.getIncr().compareTo(incrementalVersion) <= 0){
+            }/*else if (u.getIncr().compareTo(incrementalVersion) <= 0){
                 listIterator.remove();
-            }
+            }*/
         }
-        //对Incr进行字典排序 大>小
+        /*//对Incr进行字典排序 大>小
         Log.d(TAG, "Sorting updates(list)." );
         updates.sort(new Comparator<UpdateInfo>() {
             @Override
             public int compare(UpdateInfo o1, UpdateInfo o2) {
                 return o1.getIncr().compareTo(o2.getIncr());
             }
-        });
+        });*/
         return updates;
     }
 
@@ -278,7 +284,7 @@ public class Utils {
     public static String getUpgradeBlockedURL(Context context) {
         String device = SystemProperties.get(Constants.PROP_NEXT_DEVICE,
                 SystemProperties.get(Constants.PROP_DEVICE));
-        return context.getString(R.string.blocked_update_info_url, device);
+        return context.getString(R.string.blocked_update_info_url);
     }
 
     public static void triggerUpdate(Context context, String downloadId) {
@@ -509,6 +515,10 @@ public class Utils {
         return getUpdateCheckSetting(context) != Constants.AUTO_UPDATES_CHECK_INTERVAL_NEVER;
     }
 
+    public static boolean isAutoDownloadEnabled(Context context) {
+        return getUpdateCheckSetting(context) != Constants.AUTO_UPDATES_CHECK_INTERVAL_NEVER;
+    }
+
     public static long getUpdateCheckInterval(Context context) {
         switch (Utils.getUpdateCheckSetting(context)) {
             case Constants.AUTO_UPDATES_CHECK_INTERVAL_DAILY:
@@ -519,5 +529,12 @@ public class Utils {
             case Constants.AUTO_UPDATES_CHECK_INTERVAL_MONTHLY:
                 return AlarmManager.INTERVAL_DAY * 30;
         }
+    }
+
+    public static ViewGroup.LayoutParams getLayoutParams(int tw, int th, View view) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        params.width = tw;
+        params.height = th;
+        return params;
     }
 }

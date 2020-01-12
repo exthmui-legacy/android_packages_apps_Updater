@@ -37,22 +37,21 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
-import android.widget.Spinner;
-import android.widget.Switch;
-import android.widget.Button;
-import android.widget.Toast;
-import android.widget.TextView;
+import android.widget.*;
 
 import org.exthmui.updater.controller.NoticeController;
 import org.exthmui.updater.model.NoticeInfo;
+import org.exthmui.updater.ui.OnlineImageView;
 import org.json.JSONException;
 import org.exthmui.updater.controller.UpdaterController;
 import org.exthmui.updater.controller.UpdaterService;
@@ -84,6 +83,20 @@ public class UpdatesActivity extends UpdatesListActivity {
     private static Application instance;
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocused){
+        findViewById(R.id.menu_preferences).setOnLongClickListener(new Button.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast toast = Toast.makeText(getBaseContext(), getString(R.string.setting_advanced_warning), Toast.LENGTH_LONG);
+                toast.show();
+                Intent intent = new Intent(UpdatesActivity.this, AdvancedSettings.class);
+                startActivity(intent);
+                return true;
+            }
+        });
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_updates);
@@ -107,6 +120,65 @@ public class UpdatesActivity extends UpdatesListActivity {
         recyclerView.setNestedScrollingEnabled(false);
         noticeView.setHasFixedSize(true);
         noticeView.setNestedScrollingEnabled(false);
+        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                UpdaterController controller = mUpdaterService == null ? null : mUpdaterService.getUpdaterController();
+                if(controller != null && mAdapter != null) {
+                    List<UpdateInfo> updates = controller.getUpdates();
+                    boolean a=true;
+                    for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                        UpdateInfo update = updates.get(i);
+                        View view = recyclerView.getLayoutManager().findViewByPosition(i);
+                        LinearLayout mBtnsLayout = (LinearLayout) view.findViewById(R.id.update_btns);
+                        ImageButton mAction = (ImageButton) view.findViewById(R.id.update_action);
+                        ImageButton mShowChangelog = (ImageButton) view.findViewById(R.id.show_changelog);
+                        CardView mCard = (CardView) view.findViewById(R.id.update_card);
+                        OnlineImageView mImageView = view.findViewById(R.id.update_imageView);
+
+                        int btnsHeight = mBtnsLayout.getMeasuredHeight();
+                        int cardHeight = mCard.getMeasuredHeight();
+                        mBtnsLayout.setLayoutParams((LinearLayout.LayoutParams)Utils.getLayoutParams(btnsHeight, btnsHeight, mBtnsLayout));
+                        mImageView.setImageURL(update.getImageUrl());
+                        //int w = (mImageView.getImageHeight() == 0 ? 0 : (cardHeight * mImageView.getImageWidth() / mImageView.getImageHeight()));
+                        //mImageView.setLayoutParams((FrameLayout.LayoutParams)Utils.getLayoutParams(w, cardHeight, mImageView));
+                        mAction.setLayoutParams((LinearLayout.LayoutParams)Utils.getLayoutParams((int) (btnsHeight * 0.6), (int) (btnsHeight * 0.6), mAction));
+                        mShowChangelog.setLayoutParams((LinearLayout.LayoutParams)Utils.getLayoutParams(btnsHeight - (int) (btnsHeight * 0.6),btnsHeight - (int) (btnsHeight * 0.6), mShowChangelog));
+                        mAdapter.notifyItemChanged(i);
+                       /* a = !a ? false : mBtnsLayout.getMeasuredWidth() == btnsHeight && mBtnsLayout.getMeasuredHeight() == btnsHeight &&
+                                mImageView.getMeasuredWidth() == w && mImageView.getMeasuredHeight() == cardHeight &&
+                                mAction.getMeasuredWidth() == (int) (btnsHeight * 0.6) && mAction.getMeasuredHeight() == (int) (btnsHeight * 0.6) &&
+                                mShowChangelog.getMeasuredWidth() == (int) (btnsHeight * 0.3) && mShowChangelog.getMeasuredWidth() == (int) (btnsHeight * 0.3) &&
+                                mBtnsSpace.getMeasuredWidth() == btnsHeight && mBtnsSpace.getMeasuredHeight() == (btnsHeight - mAction.getMeasuredHeight() - mShowChangelog.getMeasuredHeight());*/
+                    }
+                    //在使用结束后不要忘记移除掉监听。
+                    if(a) recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            }
+        });
+        noticeView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                NoticeController controller = mUpdaterService == null ? null : mUpdaterService.getNoticeController();
+                if(controller != null && mAdapterN != null) {
+                    List<NoticeInfo> notices = controller.getNotices();
+                    boolean a=true;
+                    for (int i = 0; i < noticeView.getChildCount(); i++) {
+                        NoticeInfo notice = notices.get(i);
+                        View view = noticeView.getLayoutManager().findViewByPosition(i);
+                        CardView mCard = (CardView) view.findViewById(R.id.notice_card);
+                        OnlineImageView mImageView = view.findViewById(R.id.notice_imageView);
+
+                        mImageView.setImageURL(notice.getImageUrl());
+                        //int cardHeight = mCard.getMeasuredHeight();
+                        //int w = (mImageView.getImageHeight() == 0 ? 0 : (cardHeight * mImageView.getImageWidth() / mImageView.getImageHeight()));
+                        //mImageView.setLayoutParams((FrameLayout.LayoutParams)Utils.getLayoutParams(w, cardHeight, mImageView));
+                        mAdapterN.notifyItemChanged(i);
+                    }
+                    if(a) noticeView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            }
+        });
         if (animator instanceof SimpleItemAnimator) {
             ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
         }
@@ -168,6 +240,13 @@ public class UpdatesActivity extends UpdatesListActivity {
                     collapsingToolbar.setTitle(null);
                     mIsShown = false;
                 }
+            }
+        });
+
+        appBar.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+
             }
         });
 
@@ -279,8 +358,10 @@ public class UpdatesActivity extends UpdatesListActivity {
         List<UpdateInfo> sortedUpdates = controller.getUpdates();
         if (sortedUpdates.isEmpty()) {
             findViewById(R.id.no_new_updates_view).setVisibility(View.VISIBLE);
+            findViewById(R.id.update_container).setVisibility(View.GONE);
         } else {
             findViewById(R.id.no_new_updates_view).setVisibility(View.GONE);
+            findViewById(R.id.update_container).setVisibility(View.VISIBLE);
             //sortedUpdates.sort((u1, u2) -> Long.compare(u2.getTimestamp(), u1.getTimestamp()));//It's already sorted in Utils.parseJsonUpdate(...)
             for (UpdateInfo update : sortedUpdates) {
                 updateIds.add(update.getDownloadId());
@@ -306,9 +387,9 @@ public class UpdatesActivity extends UpdatesListActivity {
         List<String> noticeIds = new ArrayList<>();
         List<NoticeInfo> sortedNotices = controller.getNotices();
         if (sortedNotices.isEmpty()) {
-            findViewById(R.id.notice_view).setVisibility(View.GONE);
+            findViewById(R.id.notice_container).setVisibility(View.GONE);
         } else {
-            findViewById(R.id.notice_view).setVisibility(View.VISIBLE);
+            findViewById(R.id.notice_container).setVisibility(View.VISIBLE);
             //sortedNotices.sort((u1, u2) -> String.compare(u2.getId(), u1.getId()));//It's already sorted in Utils.parseJsonUpdate(...)
             for (NoticeInfo notice : sortedNotices) {
                 noticeIds.add(notice.getId());
@@ -537,17 +618,6 @@ public class UpdatesActivity extends UpdatesListActivity {
                     mUpdaterService.getUpdaterController().setPerformanceMode(enableABPerfMode);
                 })
                 .show();
-        Button mBtnAdvancedSettings = (Button)view.findViewById(R.id.preferences_advanced_settings);
-        mBtnAdvancedSettings.setOnClickListener(new Button.OnClickListener(){
-
-            @Override
-            public void onClick(View v) {
-                Toast toast=Toast.makeText(getBaseContext(),getString(R.string.setting_advanced_warning),Toast.LENGTH_LONG);
-                toast.show();
-                Intent intent = new Intent(UpdatesActivity.this,AdvancedSettings.class);
-                startActivity(intent);
-            }
-        });
     }
     public static Context getContextFromUA(){
         return instance;

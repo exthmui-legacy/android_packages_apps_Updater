@@ -89,13 +89,62 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/notice_view"
+            <LinearLayout
+                android:id="@+id/notice_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:paddingBottom="5dp"
-                android:scrollbars="none" />
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/notice_title_a"
+                    style="@style/Widget.AppCompat.TextView.SpinnerItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:paddingTop="1dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="2dp"
+                    android:text="@string/title_notices"
+                    android:textColor="@color/theme_accent"
+                    android:textStyle="bold" />
+
+                <aandroid.support.v7.widget.RecyclerView
+                    android:id="@+id/notice_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:paddingBottom="5dp"
+                    android:scrollbars="none" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/update_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/update_title_a"
+                    style="@style/Widget.AppCompat.TextView.SpinnerItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:paddingTop="1dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="2dp"
+                    android:text="@string/title_updates"
+                    android:textColor="@color/theme_accent"
+                    android:textStyle="bold" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:paddingBottom="5dp"
+                    android:scrollbars="none" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/no_new_updates_view"
@@ -105,13 +154,6 @@
                 android:padding="46dp"
                 android:text="@string/list_no_updates"
                 android:textColor="?android:textColorSecondary" />
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingBottom="5dp"
-                android:scrollbars="none" />
 
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>

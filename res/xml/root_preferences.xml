@@ -14,23 +14,24 @@
   ~ limitations under the License.
   -->
 
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
                                       xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <PreferenceCategory app:title="@string/setting_auto_update">
+    <!--<PreferenceCategory app:title="@string/setting_auto_update">
         <MultiSelectListPreference
-                android:key="auto_download"
-                android:title="@string/setting_auto_updates_download"
-                android:entries="@array/auto_updates_download_entries"
-                android:entryValues="@array/auto_updates_download_values" />
-    </PreferenceCategory>
+            android:entries="@array/auto_updates_download_entries"
+            android:entryValues="@array/auto_updates_download_values"
+            android:key="auto_download"
+            android:title="@string/setting_auto_updates_download" />
+    </PreferenceCategory>-->
 
     <PreferenceCategory app:title="@string/setting_download_settings">
         <EditTextPreference
-                android:key="download_path"
-                android:title="@string/setting_save_path"
-                app:useSimpleSummaryProvider="true"
-        />
+            android:key="download_path"
+            android:selectable="false"
+            android:summary="@string/download_path"
+            android:title="@string/setting_save_path"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/setting_update_settings">

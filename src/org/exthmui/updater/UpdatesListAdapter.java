@@ -41,12 +41,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.exthmui.updater.controller.UpdaterController;
@@ -58,7 +58,6 @@ import org.exthmui.updater.misc.StringGenerator;
 import org.exthmui.updater.misc.Utils;
 import org.exthmui.updater.model.UpdateInfo;
 import org.exthmui.updater.model.UpdateStatus;
-import org.exthmui.updater.ui.OnlineImageView;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,30 +90,33 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private ImageButton mAction;
         private ImageButton mShowChangelog;
+        private boolean mBtnReset;
 
         private TextView mBuildDate;
         private TextView mBuildVersion;
         private TextView mBuildSize;
 
-        private OnlineImageView mImageView;
-        private FrameLayout mChangelogLayout;
+        private RelativeLayout mChangelogLayout;
         private TextView mChangelog;
 
         private ProgressBar mProgressBar;
         private TextView mProgressText;
+
 
         public ViewHolder(final View view) {
             super(view);
             mAction = (ImageButton) view.findViewById(R.id.update_action);
             mShowChangelog = (ImageButton) view.findViewById(R.id.show_changelog);
 
+            mBtnReset = false;
+
             mBuildDate = (TextView) view.findViewById(R.id.build_date);
             mBuildVersion = (TextView) view.findViewById(R.id.build_version);
             mBuildSize = (TextView) view.findViewById(R.id.build_size);
 
-            mImageView =  view.findViewById(R.id.update_imageView);
-            mChangelogLayout =  view.findViewById(R.id.changelog_layout);
-            mChangelog =  view.findViewById(R.id.changelog);
+
+            mChangelogLayout = view.findViewById(R.id.changelog_layout);
+            mChangelog = view.findViewById(R.id.changelog);
             mChangelogLayout.setVisibility(View.GONE);
 
             mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
@@ -264,25 +266,33 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
 
         String buildDate = StringGenerator.getDateLocalizedUTC(mActivity,
                 DateFormat.LONG, update.getTimestamp());
-        String buildVersion = update.getVersionName().replace("{os_name}",UpdatesActivity.getContextFromUA().getResources().getString(R.string.os_name));
+        String buildVersion = update.getVersionName().replace("{os_name}", UpdatesActivity.getContextFromUA().getResources().getString(R.string.os_name));
         viewHolder.mBuildDate.setText(buildDate);
         viewHolder.mBuildVersion.setText(buildVersion);
         viewHolder.mBuildVersion.setCompoundDrawables(null, null, null, null);
-        viewHolder.mImageView.setImageURL(update.getImageUrl());
-        viewHolder.mImageView.setLayoutParams(new FrameLayout.LayoutParams(viewHolder.mImageView.getImageHeight()*viewHolder.mImageView.getImageWidth() == 0 ? 0 : viewHolder.mImageView.getHeight()/viewHolder.mImageView.getImageHeight()*viewHolder.mImageView.getImageWidth(), viewHolder.mImageView.getHeight()));
+
         viewHolder.mShowChangelog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Animation animation = AnimationUtils.loadAnimation(UpdatesActivity.getContextFromUA(), R.anim.routate);
+                final RotateAnimation animation;
+                animation = new RotateAnimation(viewHolder.mBtnReset ? 180 : 0, viewHolder.mBtnReset ? 360 : 180, Animation.RELATIVE_TO_SELF, 0.5f,
+                        Animation.RELATIVE_TO_SELF, 0.5f);
+                animation.setInterpolator(new LinearInterpolator());
+                animation.setDuration(200);
+                //设置动画结束后保留结束状态
+                animation.setFillAfter(true);
+                viewHolder.mShowChangelog.startAnimation(animation);
+                viewHolder.mBtnReset = !viewHolder.mBtnReset;
+
                 int changelogVisibility = View.GONE;
                 viewHolder.mShowChangelog.setAnimation(animation);
                 animation.start();
-                if( viewHolder.mChangelogLayout.getVisibility()==View.VISIBLE ){
+                if (viewHolder.mChangelogLayout.getVisibility() == View.VISIBLE) {
                     changelogVisibility = View.GONE;
-                }else if ( viewHolder.mChangelogLayout.getVisibility()==View.GONE ) {
+                } else if (viewHolder.mChangelogLayout.getVisibility() == View.GONE) {
                     changelogVisibility = View.VISIBLE;
                 }
-                    viewHolder.mChangelog.setText(update.getChangeLog());
+                viewHolder.mChangelog.setText(update.getChangeLog());
                 viewHolder.mChangelogLayout.setVisibility(changelogVisibility);
             }
         });
@@ -454,7 +464,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
     }
 
     private View.OnLongClickListener getLongClickListener(final UpdateInfo update,
-            final boolean canDelete, View anchor) {
+                                                          final boolean canDelete, View anchor) {
         return view -> {
             startActionMode(update, canDelete, anchor);
             return true;

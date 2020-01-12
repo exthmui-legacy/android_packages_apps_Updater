@@ -44,25 +44,56 @@ public class AdvancedSettings extends AppCompatActivity{
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
         private SharedPreferences mSharedPreferences;
-        private MultiSelectListPreference mPrefAutoDownload;
+        //private MultiSelectListPreference mPrefAutoDownload;
+        private EditTextPreference mDownloadPath;
         private MultiSelectListPreference mAutoAttendZip;
         private EditTextPreference mAppendORS;
 
         @Override
-        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        public void onCreate(Bundle savedInstanceState){
+            super.onCreate(savedInstanceState);
             mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-            mPrefAutoDownload = (MultiSelectListPreference) findPreference("auto_download");
+            //mPrefAutoDownload = (MultiSecectListPreference) findPreference("auto_download");
+            mDownloadPath = (EditTextPreference) findPreference("download_path");
             mAutoAttendZip = (MultiSelectListPreference) findPreference("auto_append_zip");
             mAppendORS = (EditTextPreference) findPreference("append_ors");
 
-            OnPreferenceChange(mPrefAutoDownload, null);
-            OnPreferenceChange(mAutoAttendZip, null);
+            /*mPrefAutoDownload.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    return OnPreferenceChange(preference, newValue);
+                }
+            });*/
 
+            mAutoAttendZip.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    return OnPreferenceChange(preference, newValue);
+                }
+            });
+
+            mDownloadPath.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    return OnPreferenceChange(preference, newValue);
+                }
+            });
+
+            //OnPreferenceChange(mPrefAutoDownload, null);
+            OnPreferenceChange(mAutoAttendZip, null);
+            OnPreferenceChange(mDownloadPath, null);
+        }
+
+        @Override
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
         }
+
+
+
         private boolean OnPreferenceChange(Preference preference, @Nullable Object newValue) {
             try {
-                if (preference == mPrefAutoDownload) {
+                /*if (preference == mPrefAutoDownload) {
                     Set<String> prefsValue = (Set) newValue;
                     if (prefsValue == null) {
                         prefsValue = mSharedPreferences.getStringSet(preference.getKey(), prefsValue);
@@ -76,7 +107,14 @@ public class AdvancedSettings extends AppCompatActivity{
                     } else {
                         preference.setSummary(R.string.setting_auto_updates_download_never);
                     }
-                } else if (preference == mAutoAttendZip) {
+                }*/
+                if (preference == mDownloadPath) {
+                    if(newValue == null || newValue == ""){
+                        mDownloadPath.setText(getString(R.string.download_path));
+                        return false;
+                    }else preference.setSummary((String)newValue);
+                }
+                if (preference == mAutoAttendZip) {
                     Set<String> prefsValue = (Set) newValue;
                     if (prefsValue == null) {
                         prefsValue = mSharedPreferences.getStringSet(preference.getKey(), prefsValue);

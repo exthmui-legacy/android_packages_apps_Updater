@@ -73,11 +73,8 @@ public class NoticesListAdapter extends RecyclerView.Adapter<NoticesListAdapter.
 
         String title = notice.getTitle();
         String text = notice.getTexts();
-        String imageUrl = notice.getImageUrl();
         viewHolder.mTitle.setText(title);
         viewHolder.mText.setText(text);
-        viewHolder.mImageView.setImageURL(notice.getImageUrl());
-        viewHolder.mImageView.setLayoutParams(new FrameLayout.LayoutParams(viewHolder.mImageView.getImageHeight()*viewHolder.mImageView.getImageWidth()==0 ? 0 : viewHolder.mImageView.getHeight()/viewHolder.mImageView.getImageHeight()*viewHolder.mImageView.getImageWidth(), viewHolder.mImageView.getHeight()));
     }
 
     @Override

@@ -45,10 +45,11 @@
     <string name="setting_append_ors_both" translatable="false">Magisk &amp; Gapps</string>
     <string name="setting_append_ors_magisk" translatable="false">Magisk</string>
     <string name="setting_append_ors_gapps" translatable="false">Gapps</string>
-    <string name="append_ors_magisk_script" translatable="false">install /sdcard/magisk.zip</string>
-    <string name="append_ors_gapps_script" translatable="false">install /sdcard/gapps.zip</string>
+    <string name="append_ors_magisk_script" translatable="false">install /sdcard/exthmui/magisk.zip</string>
+    <string name="append_ors_gapps_script" translatable="false">install /sdcard/exthmui/gapps.zip</string>
 
     <string name="title_notices">Notices</string>
+    <string name="title_updates">Updates</string>
     <string name="title_advanced_settings">AdvancedSettings</string>
     <string name="setting_auto_update">Auto update</string>
     <!--
@@ -233,8 +234,7 @@
             id="info_url">%1$s
     </xliff:g> for more information.
     </string>
-    <string name="blocked_update_info_url" translatable="false">http://wiki.lineageos.org/devices/<xliff:g
-            id="device_name">%1$s</xliff:g>/upgrade
+    <string name="blocked_update_info_url" translatable="false">https://www.exthmui.cn/upgrade-blocked
     </string>
 
     <string name="export_channel_title">Export completion</string>
