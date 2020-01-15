@@ -62,7 +62,7 @@ public class Utils {
     }
 
     public static File getDownloadPath(Context context) {
-        String path = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).getString("download_path",context.getString(R.string.download_path));
+        String path = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(context).getString("download_path",context.getString(R.string.download_path));
         return new File(path == null || path == "" ? path : context.getString(R.string.download_path));
     }
 

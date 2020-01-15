@@ -103,7 +103,7 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
                             .apply();
                     // In case we set a one-shot check because of a previous failure
                     cancelUpdatesCheck(context);
-                    SharedPreferences mSharedPreferences = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
+                    SharedPreferences mSharedPreferences = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(context);
                     Set<String> tAutoDlSet = mSharedPreferences.getStringSet("auto_download",null);
 
                     /**

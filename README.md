@@ -47,7 +47,7 @@ The `update.json`s expects as response a json file with the following structure:
   ]
 }
 ```
-The `name` attribute is the name(description) of this update.The `{os_name}` will be replaced to `R.strings.os_name` 
+The `name` attribute is the name(description) of this update.The `{os_name}` will be replaced to `R.strings.os_name`  
 The `device` attribute is the string to be compared with the device name.   
 The `packagetype` attribute is the type of the update (support: full, incremental).  
 The `incr` attribute is the incremental version of the update.  

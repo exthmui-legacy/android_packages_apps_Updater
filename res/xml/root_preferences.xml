@@ -30,8 +30,7 @@
             android:key="download_path"
             android:selectable="false"
             android:summary="@string/download_path"
-            android:title="@string/setting_save_path"
-            app:useSimpleSummaryProvider="true" />
+            android:title="@string/setting_save_path" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/setting_update_settings">
@@ -50,14 +49,12 @@
         <EditTextPreference
                 android:key="update_channel"
                 android:title="@string/setting_update_server_url"
-                android:defaultValue="@string/updater_server_url"
-                app:useSimpleSummaryProvider="true" />
+                android:defaultValue="@string/updater_server_url" />
         <EditTextPreference
                 android:key="append_ors"
                 android:title="@string/setting_append_ors_title"
                 android:selectable="false"
-                android:defaultValue=" "
-                app:useSimpleSummaryProvider="true" />
+                android:defaultValue=" " />
     </PreferenceCategory>
 
 </PreferenceScreen>
