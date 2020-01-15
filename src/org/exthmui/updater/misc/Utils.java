@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The LineageOS Project
+ * Copyright (C) 2020 The exTHmUI Project, Copyright (C) 2017 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,8 +138,8 @@ public class Utils {
 
     public static boolean canInstall(UpdateBaseInfo update) {
         return  update.getDownloadUrl() != ""  && update.getDownloadUrl() != null  &&
-                !(update.getRequirement() >= SystemProperties.getInt(Constants.PROP_BUILD_DATE,0) &&
-                update.getPType().equals("incremental")) &&
+                !((update.getRequirement() >= SystemProperties.getInt(Constants.PROP_BUILD_DATE,0) &&
+                update.getPType().equals("incremental"))) &&
                 (SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) ||
                 update.getTimestamp() > SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) &&
                 update.getVersion().equalsIgnoreCase(
