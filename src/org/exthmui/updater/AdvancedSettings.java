@@ -44,7 +44,7 @@ public class AdvancedSettings extends AppCompatActivity{
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
         private SharedPreferences mSharedPreferences;
-        //private MultiSelectListPreference mPrefAutoDownload;
+        private MultiSelectListPreference mPrefAutoDownload;
         private EditTextPreference mDownloadPath;
         private MultiSelectListPreference mAutoAttendZip;
         private EditTextPreference mAppendORS;
@@ -58,12 +58,12 @@ public class AdvancedSettings extends AppCompatActivity{
             mAutoAttendZip = (MultiSelectListPreference) findPreference("auto_append_zip");
             mAppendORS = (EditTextPreference) findPreference("append_ors");
 
-            /*mPrefAutoDownload.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            mPrefAutoDownload.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     return OnPreferenceChange(preference, newValue);
                 }
-            });*/
+            });
 
             mAutoAttendZip.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
@@ -79,7 +79,7 @@ public class AdvancedSettings extends AppCompatActivity{
                 }
             });
 
-            //OnPreferenceChange(mPrefAutoDownload, null);
+            OnPreferenceChange(mPrefAutoDownload, null);
             OnPreferenceChange(mAutoAttendZip, null);
             OnPreferenceChange(mDownloadPath, null);
         }
@@ -93,7 +93,7 @@ public class AdvancedSettings extends AppCompatActivity{
 
         private boolean OnPreferenceChange(Preference preference, @Nullable Object newValue) {
             try {
-                /*if (preference == mPrefAutoDownload) {
+                if (preference == mPrefAutoDownload) {
                     Set<String> prefsValue = (Set) newValue;
                     if (prefsValue == null) {
                         prefsValue = mSharedPreferences.getStringSet(preference.getKey(), prefsValue);
@@ -107,7 +107,7 @@ public class AdvancedSettings extends AppCompatActivity{
                     } else {
                         preference.setSummary(R.string.setting_auto_updates_download_never);
                     }
-                }*/
+                }
                 if (preference == mDownloadPath) {
                     if(newValue == null || newValue == ""){
                         mDownloadPath.setText(getString(R.string.download_path));

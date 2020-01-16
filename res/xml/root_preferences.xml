@@ -17,13 +17,13 @@
 <PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
                                       xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--<PreferenceCategory app:title="@string/setting_auto_update">
+    <PreferenceCategory app:title="@string/setting_auto_update">
         <MultiSelectListPreference
             android:entries="@array/auto_updates_download_entries"
             android:entryValues="@array/auto_updates_download_values"
             android:key="auto_download"
             android:title="@string/setting_auto_updates_download" />
-    </PreferenceCategory>-->
+    </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/setting_download_settings">
         <EditTextPreference
