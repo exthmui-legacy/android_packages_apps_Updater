@@ -64,6 +64,9 @@ public class UpdaterController {
     private int mActiveDownloads = 0;
     private Set<String> mVerifyingUpdates = new HashSet<>();
 
+    public static synchronized UpdaterController getInstanceReceiver(Context context) {
+        return UpdaterController.getInstance(context);
+    }
     public static synchronized UpdaterController getInstance() {
         return sUpdaterController;
     }
@@ -495,6 +498,12 @@ public class UpdaterController {
             updates.add(entry.mUpdate);
         }
         return updates;
+    }
+
+    public UpdateInfo getLatestUpdate(){
+        List<UpdateInfo> updates = getUpdates();
+        updates.sort((u1, u2) -> Long.compare(u2.getTimestamp(), u1.getTimestamp()));
+        return updates.get(0);
     }
 
     public UpdateInfo getUpdate(String downloadId) {

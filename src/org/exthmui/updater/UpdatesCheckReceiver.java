@@ -28,6 +28,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import org.exthmui.updater.controller.UpdaterController;
 import org.json.JSONException;
 import org.exthmui.updater.download.DownloadClient;
 import org.exthmui.updater.misc.Constants;
@@ -49,8 +50,11 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
     private static final String NEW_UPDATES_NOTIFICATION_CHANNEL =
             "new_updates_notification_channel";
 
+    private static UpdaterController mUpdaterController;
+
     @Override
     public void onReceive(final Context context, Intent intent) {
+        mUpdaterController = UpdaterController.getInstanceReceiver(context);
         if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             Utils.cleanupDownloadsDir(context);
         }
@@ -110,8 +114,8 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
                      * 自动下载
                      */
                     if (tAutoDlSet != null) {
-                        if (tAutoDlSet.contains(Utils.isOnWifiOrEthernet(context))) {
-                            //return;
+                        if (tAutoDlSet.contains(Utils.getNetworkType(context))) {
+                            mUpdaterController.startDownload(mUpdaterController.getLatestUpdate() == null ? null : mUpdaterController.getLatestUpdate().getDownloadId());
                         }
                     }
                 } catch (IOException | JSONException e) {

@@ -129,7 +129,8 @@ public class Utils {
         if(!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))){
             Log.d(TAG, update.getName() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
             return false;
-        }if(update.getVersion().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL)) < 0){
+        }
+        if(update.getVersion().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL)) < 0){
             Log.d(TAG, update.getName() + " is older than current incremental version");
             return false;
         }
@@ -140,8 +141,6 @@ public class Utils {
         return  update.getDownloadUrl() != ""  && update.getDownloadUrl() != null  &&
                 !((update.getRequirement() >= SystemProperties.getInt(Constants.PROP_BUILD_DATE,0) &&
                 update.getPType().equals("incremental"))) &&
-                (SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) ||
-                update.getTimestamp() > SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) &&
                 update.getVersion().equalsIgnoreCase(
                         SystemProperties.get(Constants.PROP_BUILD_VERSION));
     }
@@ -207,14 +206,14 @@ public class Utils {
                 listIterator.remove();
             }*/
         }
-        /*//对Incr进行字典排序 大>小
+        //对Incr进行字典排序 大>小
         Log.d(TAG, "Sorting updates(list)." );
         updates.sort(new Comparator<UpdateInfo>() {
             @Override
             public int compare(UpdateInfo o1, UpdateInfo o2) {
                 return o1.getIncr().compareTo(o2.getIncr());
             }
-        });*/
+        });
         return updates;
     }
 
@@ -307,6 +306,22 @@ public class Utils {
         NetworkInfo info = cm.getActiveNetworkInfo();
         return (info != null && (info.getType() == ConnectivityManager.TYPE_ETHERNET
                 || info.getType() == ConnectivityManager.TYPE_WIFI));
+    }
+
+    public static String getNetworkType(Context context) {
+        if (context != null) {
+            ConnectivityManager manager = (ConnectivityManager) context.getSystemService(
+                    Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = (manager == null ? null : manager.getActiveNetworkInfo());
+            if (networkInfo != null) {
+                if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE || networkInfo.getType() == ConnectivityManager.TYPE_BLUETOOTH) {
+                    return "data";
+                } else if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI || networkInfo.getType() == ConnectivityManager.TYPE_ETHERNET)  {
+                    return "wifi";
+                } else return "others";
+            }
+        }
+        return "null";
     }
 
     /**
