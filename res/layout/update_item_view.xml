@@ -140,7 +140,6 @@
                             android:background="@drawable/ripple_round"
                             android:contentDescription="@string/image_of_control_button"
                             android:src="@drawable/ic_pause"
-                            android:text="@string/pause"
                             tools:background="?android:attr/selectableItemBackgroundBorderless" />
 
                         <ImageButton
@@ -153,7 +152,7 @@
                             android:background="@drawable/ripple_round"
                             android:contentDescription="@string/icon_of_show_changelog_button"
                             android:src="@drawable/ic_expand_more"
-                            android:text="@string/show_change_log" />
+                            android:text="@string/show_changelog" />
 
                     </LinearLayout>
 

@@ -39,7 +39,7 @@
     <string name="text_update_type_incremental">Incremental</string>
     <string name="text_update_type_full">Full</string>
     -->
-    <string name="show_change_log">Show ChangeLog</string>
+    <string name="show_changelog">Show ChangeLog</string>
 
     <string name="setting_auto_append_flashing">Append zip flashing</string>
     <string name="setting_append_ors_both" translatable="false">Magisk &amp; Gapps</string>
@@ -255,10 +255,11 @@
     <string name="attachment_title">Download incoming attachments</string>
     <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
-    <string name="image_from_server">Image from Server</string>
+    <string name="image_from_server" translatable="false">Image from Server</string>
     <string name="changelogs">Changelogs</string>
-    <string name="pause">Pause</string>
     <string name="update_card_background">Update card background</string>
-    <string name="image_of_control_button">Image of control button</string>
-    <string name="icon_of_show_changelog_button">Icon of show Changelog button</string>
+    <string name="image_of_control_button" translatable="false">Image of control button</string>
+    <string name="icon_of_show_changelog_button" translatable="false">Icon of show Changelog button</string>
+    <string name="list_build_version">{os_name} <xliff:g example="14.1" id="version">%1$s</xliff:g></string>
+    <string name="setting_update_type">Update type</string>
 </resources>

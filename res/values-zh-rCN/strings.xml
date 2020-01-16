@@ -21,7 +21,6 @@
     <string name="text_update_type_full">全量更新</string>
     -->
     <string name="setting_auto_append_flashing">附加ZIP刷入</string>
-    <string name="menu_notices">exTHmUI公告</string>
     <string name="title_advanced_settings">高级设置</string>
     <string name="setting_auto_update">自动更新</string>
     <!--
@@ -92,8 +91,8 @@
     <string name="menu_ab_perf_mode">更新进程优先</string>
     <string name="snack_updates_found">找到新更新</string>
     <string name="snack_no_updates_found">没有找到新的更新</string>
-    <string name="snack_updates_check_failed">检查更新失败。 请您检查您的网络连接并稍后重试。</string>
-    <string name="snack_download_failed">下载更新失败。 请您检查您的网络连接并稍后重试。</string>
+    <string name="snack_updates_check_failed">检查更新失败。 请您检查您的网络连接与更新服务器配置并稍后重试。</string>
+    <string name="snack_download_failed">下载更新失败。 请您检查您的网络连接与更新服务器配置并稍后重试。</string>
     <string name="snack_download_verification_failed">验证更新失败。</string>
     <string name="snack_download_verified">下载完毕。</string>
     <string name="snack_update_not_installable">在当前的版本上无法安装更新。</string>
@@ -144,4 +143,14 @@
     <string name="ongoing_channel_title">正在下载</string>
     <string name="update_failed_channel_title">更新失败</string>
     <string name="setting_advanced_warning">注意：如果您不了解这些参数的含义，请不要更改它们</string>
+    <string name="attachment_summary_off">仅在手动请求时下载附件</string>
+    <string name="attachment_summary_on">自动下载传入电子邮件的附件</string>
+    <string name="attachment_title">下载传入的附件</string>
+    <string name="changelogs">更新日志</string>
+    <string name="messages_header">信息</string>
+    <string name="sync_header">同步</string>
+    <string name="sync_title">定期同步电子邮件</string>
+    <string name="title_notices">公告</string>
+    <string name="title_updates">更新</string>
+    <string name="snack_notices_check_failed">公告获取失败。 请您检查您的网络连接与更新服务器配置并稍后重试。</string>
 </resources>
