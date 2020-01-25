@@ -23,7 +23,8 @@
                 android:name=".AdvancedSettings"
                 android:excludeFromRecents="true"
                 android:launchMode="singleTop"
-                android:label="@string/title_advanced_settings">
+                android:label="@string/title_advanced_settings"
+                android:theme="@style/AppTheme.SettingsTheme">
         </activity>
         <activity
                 android:name=".UpdatesActivity"

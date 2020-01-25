@@ -53,7 +53,7 @@ public class AdvancedSettings extends AppCompatActivity{
         public void onCreate(Bundle savedInstanceState){
             super.onCreate(savedInstanceState);
             mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-            //mPrefAutoDownload = (MultiSecectListPreference) findPreference("auto_download");
+            mPrefAutoDownload = (MultiSelectListPreference) findPreference("auto_download");
             mDownloadPath = (EditTextPreference) findPreference("download_path");
             mAutoAttendZip = (MultiSelectListPreference) findPreference("auto_append_zip");
             mAppendORS = (EditTextPreference) findPreference("append_ors");
