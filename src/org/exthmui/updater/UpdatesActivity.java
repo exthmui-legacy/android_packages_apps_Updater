@@ -27,6 +27,7 @@ import android.icu.text.DateFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.Snackbar;
@@ -84,16 +85,18 @@ public class UpdatesActivity extends UpdatesListActivity {
 
     @Override
     public void onWindowFocusChanged(boolean hasFocused){
-        findViewById(R.id.menu_preferences).setOnLongClickListener(new Button.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Toast toast = Toast.makeText(getBaseContext(), getString(R.string.setting_advanced_warning), Toast.LENGTH_LONG);
-                toast.show();
-                Intent intent = new Intent(UpdatesActivity.this, AdvancedSettings.class);
-                startActivity(intent);
-                return true;
-            }
-        });
+        if(! (findViewById(R.id.menu_preferences) == null)) {
+            findViewById(R.id.menu_preferences).setOnLongClickListener(new Button.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast toast = Toast.makeText(getBaseContext(), getString(R.string.setting_advanced_warning), Toast.LENGTH_LONG);
+                    toast.show();
+                    Intent intent = new Intent(UpdatesActivity.this, AdvancedSettings.class);
+                    startActivity(intent);
+                    return true;
+                }
+            });
+        }
     }
 
     @Override
@@ -131,25 +134,28 @@ public class UpdatesActivity extends UpdatesListActivity {
                         UpdateInfo update = updates.get(i);
                         View view = recyclerView.getLayoutManager().findViewByPosition(i);
                         LinearLayout mBtnsLayout = (LinearLayout) view.findViewById(R.id.update_btns);
+                        CardView mCard = (CardView) view.findViewById(R.id.update_card);
                         ImageButton mAction = (ImageButton) view.findViewById(R.id.update_action);
                         ImageButton mShowChangelog = (ImageButton) view.findViewById(R.id.show_changelog);
-                        CardView mCard = (CardView) view.findViewById(R.id.update_card);
                         OnlineImageView mImageView = view.findViewById(R.id.update_imageView);
 
-                        int btnsHeight = mBtnsLayout.getMeasuredHeight();
-                        int cardHeight = mCard.getMeasuredHeight();
-                        mBtnsLayout.setLayoutParams((LinearLayout.LayoutParams)Utils.getLayoutParams(btnsHeight, btnsHeight, mBtnsLayout));
-                        mImageView.setImageURL(update.getImageUrl());
-                        //int w = (mImageView.getImageHeight() == 0 ? 0 : (cardHeight * mImageView.getImageWidth() / mImageView.getImageHeight()));
-                        //mImageView.setLayoutParams((FrameLayout.LayoutParams)Utils.getLayoutParams(w, cardHeight, mImageView));
-                        mAction.setLayoutParams((LinearLayout.LayoutParams)Utils.getLayoutParams((int) (btnsHeight * 0.6), (int) (btnsHeight * 0.6), mAction));
-                        mShowChangelog.setLayoutParams((LinearLayout.LayoutParams)Utils.getLayoutParams(btnsHeight - (int) (btnsHeight * 0.6),btnsHeight - (int) (btnsHeight * 0.6), mShowChangelog));
-                        mAdapter.notifyItemChanged(i);
-                       /* a = !a ? false : mBtnsLayout.getMeasuredWidth() == btnsHeight && mBtnsLayout.getMeasuredHeight() == btnsHeight &&
+                        if (!(mBtnsLayout == null || mCard == null || mAction == null || mShowChangelog == null || mImageView == null)) {
+                            int btnsHeight = mBtnsLayout.getMeasuredHeight();
+                            int cardHeight = mCard.getMeasuredHeight();
+                            mBtnsLayout.setLayoutParams((ConstraintLayout.LayoutParams) Utils.getLayoutParams((int) (btnsHeight * 0.6), btnsHeight, mBtnsLayout));
+                            mImageView.setImageURL(update.getImageUrl());
+                            int w = (mImageView.getImageHeight() == 0 ? 0 : (cardHeight * mImageView.getImageWidth() / mImageView.getImageHeight()));
+                            mImageView.setLayoutParams((ConstraintLayout.LayoutParams) Utils.getLayoutParams(w, cardHeight, mImageView));
+                            mAction.setLayoutParams((LinearLayout.LayoutParams) Utils.getLayoutParams((int) (btnsHeight * 0.6), (int) (btnsHeight * 0.6), mAction));
+                            mShowChangelog.setLayoutParams((LinearLayout.LayoutParams) Utils.getLayoutParams(btnsHeight - (int) (btnsHeight * 0.6), btnsHeight - (int) (btnsHeight * 0.6), mShowChangelog));
+                            mAdapter.notifyItemChanged(i);
+
+                            /* a = !a ? false : mBtnsLayout.getMeasuredWidth() == btnsHeight && mBtnsLayout.getMeasuredHeight() == btnsHeight &&
                                 mImageView.getMeasuredWidth() == w && mImageView.getMeasuredHeight() == cardHeight &&
                                 mAction.getMeasuredWidth() == (int) (btnsHeight * 0.6) && mAction.getMeasuredHeight() == (int) (btnsHeight * 0.6) &&
                                 mShowChangelog.getMeasuredWidth() == (int) (btnsHeight * 0.3) && mShowChangelog.getMeasuredWidth() == (int) (btnsHeight * 0.3) &&
                                 mBtnsSpace.getMeasuredWidth() == btnsHeight && mBtnsSpace.getMeasuredHeight() == (btnsHeight - mAction.getMeasuredHeight() - mShowChangelog.getMeasuredHeight());*/
+                            }else a = false;
                     }
                     //在使用结束后不要忘记移除掉监听。
                     if(a) recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
@@ -170,9 +176,9 @@ public class UpdatesActivity extends UpdatesListActivity {
                         OnlineImageView mImageView = view.findViewById(R.id.notice_imageView);
 
                         mImageView.setImageURL(notice.getImageUrl());
-                        //int cardHeight = mCard.getMeasuredHeight();
-                        //int w = (mImageView.getImageHeight() == 0 ? 0 : (cardHeight * mImageView.getImageWidth() / mImageView.getImageHeight()));
-                        //mImageView.setLayoutParams((FrameLayout.LayoutParams)Utils.getLayoutParams(w, cardHeight, mImageView));
+                        int cardHeight = mCard.getMeasuredHeight();
+                        int w = (mImageView.getImageHeight() == 0 ? 0 : (cardHeight * mImageView.getImageWidth() / mImageView.getImageHeight()));
+                        mImageView.setLayoutParams((FrameLayout.LayoutParams)Utils.getLayoutParams(w, cardHeight, mImageView));
                         mAdapterN.notifyItemChanged(i);
                     }
                     if(a) noticeView.getViewTreeObserver().removeOnGlobalLayoutListener(this);

@@ -107,6 +107,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
             super(view);
             mAction = (ImageButton) view.findViewById(R.id.update_action);
             mShowChangelog = (ImageButton) view.findViewById(R.id.show_changelog);
+            mChangelogLayout = view.findViewById(R.id.changelog_layout);
 
             mBtnReset = false;
 
@@ -115,9 +116,8 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
             mBuildSize = (TextView) view.findViewById(R.id.build_size);
 
 
-            mChangelogLayout = view.findViewById(R.id.changelog_layout);
             mChangelog = view.findViewById(R.id.changelog);
-            mChangelogLayout.setVisibility(View.GONE);
+            //mChangelogLayout.setVisibility(View.GONE);
 
             mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
             mProgressText = (TextView) view.findViewById(R.id.progress_text);
