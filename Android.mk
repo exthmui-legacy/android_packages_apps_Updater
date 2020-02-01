@@ -16,7 +16,7 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     android-support-v7-cardview \
     android-support-v7-preference \
     android-support-v7-recyclerview \
-    android-support-constraint-constraintlayout
+    android-support-constraint-layout
 
 LOCAL_RESOURCE_DIR := \
     $(LOCAL_PATH)/res
