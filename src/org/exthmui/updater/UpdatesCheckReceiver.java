@@ -25,7 +25,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 import android.util.Log;
 
 import org.exthmui.updater.controller.UpdaterController;
@@ -107,7 +107,7 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
                             .apply();
                     // In case we set a one-shot check because of a previous failure
                     cancelUpdatesCheck(context);
-                    SharedPreferences mSharedPreferences = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(context);
+                    SharedPreferences mSharedPreferences = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
                     Set<String> tAutoDlSet = mSharedPreferences.getStringSet("auto_download",null);
 
                     /**
