@@ -428,8 +428,10 @@ public class MainActivity extends BaseActivity {
                         UpdatesCheckReceiver.cancelUpdatesCheck(this);
                     }
 
-                    boolean enableABPerfMode = abPerfMode.isChecked();
-                    getUpdaterController().setPerformanceMode(enableABPerfMode);
+                    if (Utils.isABDevice()) {
+                        boolean enableABPerfMode = abPerfMode.isChecked();
+                        mUpdaterService.getUpdaterController().setPerformanceMode(enableABPerfMode);
+                    }
                 })
                 .show();
     }
