@@ -14,15 +14,15 @@
   ~ limitations under the License.
   -->
 
-<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-                                      xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory app:title="@string/setting_auto_update">
         <MultiSelectListPreference
-            android:entries="@array/auto_updates_download_entries"
-            android:entryValues="@array/auto_updates_download_values"
-            android:key="auto_download"
-            android:title="@string/setting_auto_updates_download" />
+                android:entries="@array/auto_updates_download_entries"
+                android:entryValues="@array/auto_updates_download_values"
+                android:key="auto_download"
+                android:title="@string/setting_auto_updates_download"/>
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/setting_download_settings">
@@ -34,27 +34,10 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/setting_update_settings">
-        <SwitchPreference
-                android:key="clean_cache_after_install"
-                android:title="@string/setting_clean_cache_after_update"
-                android:defaultValue="false"
-                android:summary="@string/setting_clean_cache_after_update_summary" />
-        <MultiSelectListPreference
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:entries="@array/auto_append_zip_flashing_entries"
-            android:entryValues="@array/auto_append_zip_flashing_values"
-            android:key="auto_append_zip"
-            android:title="@string/setting_auto_append_flashing" />
         <EditTextPreference
                 android:key="update_channel"
                 android:title="@string/setting_update_server_url"
                 android:defaultValue="@string/updater_server_url" />
-        <EditTextPreference
-                android:key="append_ors"
-                android:title="@string/setting_append_ors_title"
-                android:selectable="false"
-                android:defaultValue=" " />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -19,9 +19,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
 import android.os.SystemProperties;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
-
+import androidx.preference.PreferenceManager;
 import org.exthmui.updater.misc.Constants;
 import org.exthmui.updater.misc.FileUtils;
 import org.exthmui.updater.misc.Utils;
@@ -96,13 +95,8 @@ class UpdateInstaller {
 
     private void installPackage(File update, String downloadId) {
         SharedPreferences mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-        String mAppendOrs = mSharedPreferences.getString("append_ors","");//附加ORS参数
-        boolean mIfCC = mSharedPreferences.getBoolean("clean_cache_after_install",false);//清除cache参数
-        if(mIfCC){
-            mAppendOrs+="\nwipe cache";
-        }
         try {
-            android.os.RecoverySystem.installPackage(mContext, update, mAppendOrs); //By our custom framework API,it's not a issue.
+            android.os.RecoverySystem.installPackage(mContext, update);
         } catch (IOException e) {
             Log.e(TAG, "Could not install update", e);
             mUpdaterController.getActualUpdate(downloadId)
@@ -118,7 +112,7 @@ class UpdateInstaller {
         Runnable copyUpdateRunnable = new Runnable() {
             private long mLastUpdate = -1;
 
-            FileUtils.ProgressCallBack mProgressCallBack = new FileUtils.ProgressCallBack() {
+            final FileUtils.ProgressCallBack mProgressCallBack = new FileUtils.ProgressCallBack() {
                 @Override
                 public void update(int progress) {
                     long now = SystemClock.elapsedRealtime();

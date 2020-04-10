@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     Copyright (C) 2020 The exTHmUI Project, Copyright (C) 2017 The LineageOS Project
+     Copyright (C) 2017 The LineageOS Project
+               (C) 2020 The exTHmUI Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -29,8 +30,6 @@
     <!--
         Optional placeholders replaced at runtime:
           {device} - Device name
-          {type} - Build type
-          {incr} - Incremental version
     -->
     <string name="updater_server_url" translatable="false">
         https://raw.githubusercontent.com/exthmui/update_scripts/master
@@ -40,25 +39,10 @@
     <string name="text_update_type_full">Full</string>
     -->
     <string name="show_changelog">Show ChangeLog</string>
-
-    <string name="setting_auto_append_flashing">Append zip flashing</string>
-    <string name="setting_append_ors_both" translatable="false">Magisk &amp; Gapps</string>
-    <string name="setting_append_ors_magisk" translatable="false">Magisk</string>
-    <string name="setting_append_ors_gapps" translatable="false">Gapps</string>
-    <string name="append_ors_magisk_script" translatable="false">install /sdcard/exthmui/magisk.zip</string>
-    <string name="append_ors_gapps_script" translatable="false">install /sdcard/exthmui/gapps.zip</string>
-
     <string name="title_notices">Notices</string>
     <string name="title_updates">Updates</string>
     <string name="title_advanced_settings">AdvancedSettings</string>
     <string name="setting_auto_update">Auto update</string>
-    <!--
-    <string name="setting_auto_updates_check">Auto updates check</string>
-    <string name="setting_auto_updates_check_interval_daily">Once a day</string>
-    <string name="setting_auto_updates_check_interval_weekly">Once a week</string>
-    <string name="setting_auto_updates_check_interval_monthly">Once a month</string>
-    <string name="setting_auto_updates_check_interval_never">Never</string>
-    -->
     <string name="setting_auto_updates_download">Auto updates download</string>
     <string name="setting_auto_updates_download_wifi">Use WLAN Network</string>
     <string name="setting_auto_updates_download_data">Use Data Network</string>
@@ -66,17 +50,12 @@
     <string name="setting_auto_updates_download_never">Never</string>
     <string name="setting_download_settings">Download Settings</string>
     <string name="setting_save_path">Download path</string>
-    <!--
-    <string name="setting_user_agent">User Agent</string>
-    -->
     <string name="setting_update_settings">Update settings</string>
     <string name="setting_update_server_url">Update server URL</string>
     <string name="setting_auto_delete_updates">Delete updates when installed</string>
     <string name="setting_clean_cache_after_update">Clean cache when installed</string>
     <string name="setting_clean_cache_after_update_summary">Clean Dalvik/ART cache when installed</string>
-    <string name="setting_append_ors_title">Append OpenRecoveryScript</string>
     <string name="setting_advanced_warning">Warning: If you do not understand the meaning of these parameters, please do not modify them</string>
-
 
     <string name="verification_failed_notification">Verification failed</string>
     <string name="verifying_download_notification">Verifying update</string>
@@ -260,6 +239,6 @@
     <string name="update_card_background">Update card background</string>
     <string name="image_of_control_button" translatable="false">Image of control button</string>
     <string name="icon_of_show_changelog_button" translatable="false">Icon of show Changelog button</string>
-    <string name="list_build_version">{os_name} <xliff:g example="14.1" id="version">%1$s</xliff:g></string>
+    <string name="list_build_version">{os_name} <xliff:g example="10.0" id="version">%1$s</xliff:g></string>
     <string name="setting_update_type">Update type</string>
 </resources>
