@@ -130,8 +130,8 @@ public class Utils {
             Log.d(TAG, update.getName() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
             return false;
         }
-        if(update.getVersion().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL)) < 0){
-            Log.d(TAG, update.getName() + " is older than current incremental version");
+        if(update.getIncr().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL)) <= 0){
+            Log.d(TAG, update.getName() + " is older than/equal current incremental version");
             return false;
         }
         return true;
