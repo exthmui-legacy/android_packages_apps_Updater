@@ -25,7 +25,6 @@ public class UpdateBase implements UpdateBaseInfo {
     private String mName;
     private String mDevice;
     private long mRequirement;
-    private String mIncr;
     private String mPType;//Packagetype:full/...
     private String mChangeLog;
     private String mImageUrl;
@@ -43,7 +42,6 @@ public class UpdateBase implements UpdateBaseInfo {
         mVersionName = update.getVersionName();
         mName = update.getName();
         mDevice = update.getDevice();
-        mIncr = update.getIncr();
         mPType = update.getPType();
         mChangeLog = update.getChangeLog();
         mImageUrl = update.getImageUrl();
@@ -93,13 +91,6 @@ public class UpdateBase implements UpdateBaseInfo {
     }
 
     public void setPType(String packageType) { mPType = packageType; }
-
-    @Override
-    public String getIncr() {
-        return mIncr;
-    }
-
-    public void setIncr(String incr) { mIncr = incr; }
 
     @Override
     public String getChangeLog() {

@@ -27,6 +27,7 @@ import android.icu.text.DateFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemProperties;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -52,6 +53,8 @@ import android.widget.*;
 
 import org.exthmui.updater.controller.NoticeController;
 import org.exthmui.updater.model.NoticeInfo;
+import org.exthmui.updater.model.Update;
+import org.exthmui.updater.model.UpdateBaseInfo;
 import org.exthmui.updater.ui.OnlineImageView;
 import org.json.JSONException;
 import org.exthmui.updater.controller.UpdaterController;
@@ -65,9 +68,7 @@ import org.exthmui.updater.model.UpdateInfo;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class UpdatesActivity extends UpdatesListActivity {
 
@@ -368,7 +369,26 @@ public class UpdatesActivity extends UpdatesListActivity {
         } else {
             findViewById(R.id.no_new_updates_view).setVisibility(View.GONE);
             findViewById(R.id.update_container).setVisibility(View.VISIBLE);
-            //sortedUpdates.sort((u1, u2) -> Long.compare(u2.getTimestamp(), u1.getTimestamp()));//It's already sorted in Utils.parseJsonUpdate(...)
+            // Sort:from small to big
+            Log.d(TAG, "Sorting updates(list)(small > big)." );
+            sortedUpdates.sort(Comparator.comparingLong(UpdateBaseInfo::getTimestamp));
+            //遍历判断Target与Current版本Timestamp，并循环setChangeLog();合并log.
+            long timestamp = SystemProperties.getLong(Constants.PROP_BUILD_DATE,0);
+            Log.d(TAG, "Merging changelog for updates." );
+            String changelog="";
+            ListIterator<UpdateInfo> listIterator = sortedUpdates.listIterator();
+            while (listIterator.hasNext()){
+                Update u=(Update)listIterator.next();
+                if (u.getTimestamp() > timestamp){
+                    changelog= u.getChangeLog() + (changelog == "" ? "" : "\n") + changelog;
+                    u.setChangeLog(changelog);
+                    listIterator.remove();
+                    listIterator.add(u);
+                }
+            }
+            // Sort:from big to small
+            Log.d(TAG, "Sorting updates(list)(big > small)." );
+            sortedUpdates.sort((u1, u2) -> Long.compare(u2.getTimestamp(), u1.getTimestamp()));
             for (UpdateInfo update : sortedUpdates) {
                 updateIds.add(update.getDownloadId());
             }

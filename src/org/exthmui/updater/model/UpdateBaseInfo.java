@@ -22,7 +22,6 @@ public interface UpdateBaseInfo {
     String getDevice();
     String getPType();
     long getRequirement();
-    String getIncr();
     String getChangeLog();
     long getTimestamp();
     String getName();

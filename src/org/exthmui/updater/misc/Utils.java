@@ -93,8 +93,6 @@ public class Utils {
         update.setPType(object.getString("packagetype"));
         update.setRequirement(object.getLong("requirement"));
         update.setTimestamp(object.getLong("timestamp"));
-        //update.setVersionCode(object.getLong("versioncode"));
-        update.setIncr(object.getString("incr"));
         update.setChangeLog(new String(android.util.Base64.decode(object.getString("changelog").getBytes(), Base64.DEFAULT)));
         update.setName(object.getString("filename"));
         update.setDownloadId(object.getString("sha1"));
@@ -106,7 +104,7 @@ public class Utils {
         return update;
     }
     // This should really return an NoticeInfo object, but currently this only
-    // used to initialize UpdateInfo objects
+    // used to initialize NoticeInfo objects
     private static NoticeInfo parseJsonNotice(JSONObject object) throws JSONException {
         Notice notice = new  Notice(object.getString("title"),object.getString("text"),object.getString("id"),object.getString("imageurl"));
         return notice;
@@ -128,10 +126,6 @@ public class Utils {
         }
         if(!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))){
             Log.d(TAG, update.getName() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
-            return false;
-        }
-        if(update.getIncr().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL)) <= 0){
-            Log.d(TAG, update.getName() + " is older than/equal current incremental version");
             return false;
         }
         return true;
@@ -173,47 +167,6 @@ public class Utils {
                 Log.e(TAG, "Could not parse update object, index=" + i, e);
             }
         }
-        /*
-
-        * Do not put any same incr verison package in the json file!!!!!!!!
-
-         */
-        //对Incr进行字典排序 小>大
-        Log.d(TAG, "Sorting updates(list)." );
-        updates.sort(new Comparator<UpdateInfo>() {
-            @Override
-            public int compare(UpdateInfo o1, UpdateInfo o2) {
-                return o1.getIncr().compareTo(o2.getIncr());
-            }
-        });
-        //遍历判断Target与Current版本Incr大小，并循环setChangeLog();合并log.
-        String incrementalVersion = SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL);
-        Log.d(TAG, "Checking Incr in updates." );
-        String changelog="";
-        ListIterator<UpdateInfo> listIterator = updates.listIterator();
-        while (listIterator.hasNext()){
-            Update u=(Update)listIterator.next();
-            if (u.getIncr().compareTo(incrementalVersion) > 0){
-                changelog=u.getChangeLog()+(changelog == null || changelog == "" ? "" : "\n")+changelog;
-                u.setChangeLog(changelog);
-                listIterator.remove();
-                /*if(listIterator.hasNext()){
-                    listIterator.next();
-                }*/
-                listIterator.add(u);
-                //listIterator.previous();
-            }/*else if (u.getIncr().compareTo(incrementalVersion) <= 0){
-                listIterator.remove();
-            }*/
-        }
-        //对Incr进行字典排序 大>小
-        Log.d(TAG, "Sorting updates(list)." );
-        updates.sort(new Comparator<UpdateInfo>() {
-            @Override
-            public int compare(UpdateInfo o1, UpdateInfo o2) {
-                return o1.getIncr().compareTo(o2.getIncr());
-            }
-        });
         return updates;
     }
 

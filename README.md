@@ -33,7 +33,6 @@ The `update.json`s expects as response a json file with the following structure:
       "device": "example",
       "packagetype": "full",
       "requirement": 0,
-      "incr": "a1234",
       "changelog": "VXBkYXRlJTIwdG8lMjBleFRIbVVJJTIwMS4w",
       "timestamp": 1590764400,
       "filename": "ota-package.zip",
@@ -48,9 +47,8 @@ The `update.json`s expects as response a json file with the following structure:
 }
 ```
 The `name` attribute is the name(description) of this update.The `{os_name}` will be replaced to `R.strings.os_name`  
-The `device` attribute is the string to be compared with the device name.   
+The `device` attribute is the string to be compared with the device name.  
 The `packagetype` attribute is the type of the update (support: full, incremental).  
-The `incr` attribute is the incremental version of the update.  
 The `changelog` attribute is the base64 encoded changelogs of this update.  
 The `requirement` attribute is the string to be compared with the system build timestamp (for incremental updates only).  
 The `timestamp` attribute is the build date expressed as UNIX timestamp.  
