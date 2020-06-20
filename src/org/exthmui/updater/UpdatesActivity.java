@@ -16,47 +16,30 @@
 package org.exthmui.updater;
 
 import android.app.Application;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.icu.text.DateFormat;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemProperties;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.PreferenceManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewTreeObserver;
+import android.view.*;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.*;
-
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.snackbar.Snackbar;
 import org.exthmui.updater.controller.NoticeController;
-import org.exthmui.updater.model.NoticeInfo;
-import org.exthmui.updater.model.Update;
-import org.exthmui.updater.model.UpdateBaseInfo;
-import org.exthmui.updater.ui.OnlineImageView;
-import org.json.JSONException;
 import org.exthmui.updater.controller.UpdaterController;
 import org.exthmui.updater.controller.UpdaterService;
 import org.exthmui.updater.download.DownloadClient;
@@ -64,7 +47,12 @@ import org.exthmui.updater.misc.BuildInfoUtils;
 import org.exthmui.updater.misc.Constants;
 import org.exthmui.updater.misc.StringGenerator;
 import org.exthmui.updater.misc.Utils;
+import org.exthmui.updater.model.NoticeInfo;
+import org.exthmui.updater.model.Update;
+import org.exthmui.updater.model.UpdateBaseInfo;
 import org.exthmui.updater.model.UpdateInfo;
+import org.exthmui.updater.ui.OnlineImageView;
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,188 +72,37 @@ public class UpdatesActivity extends UpdatesListActivity {
 
     private static Application instance;
 
+    private final ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            UpdaterService.LocalBinder binder = (UpdaterService.LocalBinder) service;
+            mUpdaterService = binder.getService();
+            mAdapter.setUpdaterController(mUpdaterService.getUpdaterController());
+            mAdapterN.setNoticeController(mUpdaterService.getNoticeController());
+            getUpdatesList();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mAdapter.setUpdaterController(null);
+            mUpdaterService = null;
+            mAdapter.notifyDataSetChanged();
+        }
+    };
+
     @Override
-    public void onWindowFocusChanged(boolean hasFocused){
-        if(! (findViewById(R.id.menu_preferences) == null)) {
-            findViewById(R.id.menu_preferences).setOnLongClickListener(new Button.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    Toast toast = Toast.makeText(getBaseContext(), getString(R.string.setting_advanced_warning), Toast.LENGTH_LONG);
-                    toast.show();
-                    Intent intent = new Intent(UpdatesActivity.this, AdvancedSettings.class);
-                    startActivity(intent);
-                    return true;
-                }
+    public void onWindowFocusChanged(boolean hasFocused) {
+        if (!(findViewById(R.id.menu_preferences) == null)) {
+            findViewById(R.id.menu_preferences).setOnLongClickListener(v -> {
+                Toast toast = Toast.makeText(getBaseContext(), getString(R.string.setting_advanced_warning), Toast.LENGTH_LONG);
+                toast.show();
+                Intent intent = new Intent(UpdatesActivity.this, AdvancedSettings.class);
+                startActivity(intent);
+                return true;
             });
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_updates);
-
-        instance=getApplication();
-
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        RecyclerView noticeView = (RecyclerView) findViewById(R.id.notice_view);
-        mAdapter = new UpdatesListAdapter(this);
-        mAdapterN = new NoticesListAdapter(this);
-        recyclerView.setAdapter(mAdapter);
-        noticeView.setAdapter(mAdapterN);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        RecyclerView.LayoutManager layoutManagerN = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        noticeView.setLayoutManager(layoutManagerN);
-        RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
-        RecyclerView.ItemAnimator animatorN = noticeView.getItemAnimator();
-        //修复 ScrollView 嵌套 RecyclerView 造成的滑动卡顿
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setNestedScrollingEnabled(false);
-        noticeView.setHasFixedSize(true);
-        noticeView.setNestedScrollingEnabled(false);
-        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                UpdaterController controller = mUpdaterService == null ? null : mUpdaterService.getUpdaterController();
-                if(controller != null && mAdapter != null) {
-                    List<UpdateInfo> updates = controller.getUpdates();
-                    boolean a=true;
-                    for (int i = 0; i < recyclerView.getChildCount(); i++) {
-                        UpdateInfo update = updates.get(i);
-                        View view = recyclerView.getLayoutManager().findViewByPosition(i);
-                        LinearLayout mBtnsLayout = (LinearLayout) view.findViewById(R.id.update_btns);
-                        CardView mCard = (CardView) view.findViewById(R.id.update_card);
-                        ImageButton mAction = (ImageButton) view.findViewById(R.id.update_action);
-                        ImageButton mShowChangelog = (ImageButton) view.findViewById(R.id.show_changelog);
-                        OnlineImageView mImageView = view.findViewById(R.id.update_imageView);
-
-                        if (!(mBtnsLayout == null || mCard == null || mAction == null || mShowChangelog == null || mImageView == null)) {
-                            int btnsHeight = mBtnsLayout.getMeasuredHeight();
-                            int cardHeight = mCard.getMeasuredHeight();
-                            mBtnsLayout.setLayoutParams((ConstraintLayout.LayoutParams) Utils.getLayoutParams((int) (btnsHeight * 0.6), btnsHeight, mBtnsLayout));
-                            mImageView.setImageURL(update.getImageUrl());
-                            int w = (mImageView.getImageHeight() == 0 ? 0 : (cardHeight * mImageView.getImageWidth() / mImageView.getImageHeight()));
-                            mImageView.setLayoutParams((ConstraintLayout.LayoutParams) Utils.getLayoutParams(w, cardHeight, mImageView));
-                            mAction.setLayoutParams((LinearLayout.LayoutParams) Utils.getLayoutParams((int) (btnsHeight * 0.6), (int) (btnsHeight * 0.6), mAction));
-                            mShowChangelog.setLayoutParams((LinearLayout.LayoutParams) Utils.getLayoutParams(btnsHeight - (int) (btnsHeight * 0.6), btnsHeight - (int) (btnsHeight * 0.6), mShowChangelog));
-                            mAdapter.notifyItemChanged(i);
-
-                            /* a = !a ? false : mBtnsLayout.getMeasuredWidth() == btnsHeight && mBtnsLayout.getMeasuredHeight() == btnsHeight &&
-                                mImageView.getMeasuredWidth() == w && mImageView.getMeasuredHeight() == cardHeight &&
-                                mAction.getMeasuredWidth() == (int) (btnsHeight * 0.6) && mAction.getMeasuredHeight() == (int) (btnsHeight * 0.6) &&
-                                mShowChangelog.getMeasuredWidth() == (int) (btnsHeight * 0.3) && mShowChangelog.getMeasuredWidth() == (int) (btnsHeight * 0.3) &&
-                                mBtnsSpace.getMeasuredWidth() == btnsHeight && mBtnsSpace.getMeasuredHeight() == (btnsHeight - mAction.getMeasuredHeight() - mShowChangelog.getMeasuredHeight());*/
-                            }else a = false;
-                    }
-                    //在使用结束后不要忘记移除掉监听。
-                    if(a) recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
-            }
-        });
-        noticeView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                NoticeController controller = mUpdaterService == null ? null : mUpdaterService.getNoticeController();
-                if(controller != null && mAdapterN != null) {
-                    List<NoticeInfo> notices = controller.getNotices();
-                    boolean a=true;
-                    for (int i = 0; i < noticeView.getChildCount(); i++) {
-                        NoticeInfo notice = notices.get(i);
-                        View view = noticeView.getLayoutManager().findViewByPosition(i);
-                        CardView mCard = (CardView) view.findViewById(R.id.notice_card);
-                        OnlineImageView mImageView = view.findViewById(R.id.notice_imageView);
-
-                        mImageView.setImageURL(notice.getImageUrl());
-                        int cardHeight = mCard.getMeasuredHeight();
-                        int w = (mImageView.getImageHeight() == 0 ? 0 : (cardHeight * mImageView.getImageWidth() / mImageView.getImageHeight()));
-                        mImageView.setLayoutParams((FrameLayout.LayoutParams)Utils.getLayoutParams(w, cardHeight, mImageView));
-                        mAdapterN.notifyItemChanged(i);
-                    }
-                    if(a) noticeView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
-            }
-        });
-        if (animator instanceof SimpleItemAnimator) {
-            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
-        }
-        if (animatorN instanceof SimpleItemAnimator) {
-            ((SimpleItemAnimator) animatorN).setSupportsChangeAnimations(false);
-        }
-
-        mBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
-                    String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
-                    handleDownloadStatusChange(downloadId);
-                    mAdapter.notifyDataSetChanged();
-                } else if (UpdaterController.ACTION_DOWNLOAD_PROGRESS.equals(intent.getAction()) ||
-                        UpdaterController.ACTION_INSTALL_PROGRESS.equals(intent.getAction())) {
-                    String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
-                    mAdapter.notifyItemChanged(downloadId);
-                } else if (UpdaterController.ACTION_UPDATE_REMOVED.equals(intent.getAction())) {
-                    String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
-                    mAdapter.removeItem(downloadId);
-                }
-            }
-        };
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        TextView headerTitle = (TextView) findViewById(R.id.header_title);
-        headerTitle.setText(getString(R.string.header_title_text,
-                BuildInfoUtils.getBuildVersion()).replace("{os_name}",getString(R.string.os_name)));
-
-        updateLastCheckedString();
-
-        TextView headerBuildVersion = (TextView) findViewById(R.id.header_build_version);
-        headerBuildVersion.setText(
-                getString(R.string.header_android_version, Build.VERSION.RELEASE));
-
-        TextView headerBuildDate = (TextView) findViewById(R.id.header_build_date);
-        headerBuildDate.setText(StringGenerator.getDateLocalizedUTC(this,
-                DateFormat.LONG, BuildInfoUtils.getBuildDateTimestamp()));
-
-        // Switch between header title and appbar title minimizing overlaps
-        final CollapsingToolbarLayout collapsingToolbar =
-                (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-        final AppBarLayout appBar = (AppBarLayout) findViewById(R.id.app_bar);
-        appBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            boolean mIsShown = false;
-
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                int scrollRange = appBarLayout.getTotalScrollRange();
-                if (!mIsShown && scrollRange + verticalOffset < 10) {
-                    collapsingToolbar.setTitle(getString(R.string.display_name));
-                    mIsShown = true;
-                } else if (mIsShown && scrollRange + verticalOffset > 100) {
-                    collapsingToolbar.setTitle(null);
-                    mIsShown = false;
-                }
-            }
-        });
-
-        appBar.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-
-            }
-        });
-
-        if (!Utils.hasTouchscreen(this)) {
-            // This can't be collapsed without a touchscreen
-            appBar.setExpanded(false);
-        }
-
-        mRefreshAnimation = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f);
-        mRefreshAnimation.setInterpolator(new LinearInterpolator());
-        mRefreshAnimation.setDuration(1000);
     }
 
     @Override
@@ -321,25 +158,169 @@ public class UpdatesActivity extends UpdatesListActivity {
         return true;
     }
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_updates);
 
-        @Override
-        public void onServiceConnected(ComponentName className,
-                IBinder service) {
-            UpdaterService.LocalBinder binder = (UpdaterService.LocalBinder) service;
-            mUpdaterService = binder.getService();
-            mAdapter.setUpdaterController(mUpdaterService.getUpdaterController());
-            mAdapterN.setNoticeController(mUpdaterService.getNoticeController());
-            getUpdatesList();
+        instance = getApplication();
+
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        RecyclerView noticeView = findViewById(R.id.notice_view);
+        mAdapter = new UpdatesListAdapter(this);
+        mAdapterN = new NoticesListAdapter(this);
+        recyclerView.setAdapter(mAdapter);
+        noticeView.setAdapter(mAdapterN);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager layoutManagerN = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        noticeView.setLayoutManager(layoutManagerN);
+        RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
+        RecyclerView.ItemAnimator animatorN = noticeView.getItemAnimator();
+        //修复 ScrollView 嵌套 RecyclerView 造成的滑动卡顿
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setNestedScrollingEnabled(false);
+        noticeView.setHasFixedSize(true);
+        noticeView.setNestedScrollingEnabled(false);
+        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                UpdaterController controller = mUpdaterService == null ? null : mUpdaterService.getUpdaterController();
+                if(controller != null && mAdapter != null) {
+                    List<UpdateInfo> updates = controller.getUpdates();
+                    boolean a=true;
+                    for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                        UpdateInfo update = updates.get(i);
+                        View view = recyclerView.getLayoutManager().findViewByPosition(i);
+                        LinearLayout mBtnsLayout = view.findViewById(R.id.update_btns);
+                        CardView mCard = view.findViewById(R.id.update_card);
+                        ImageButton mAction = view.findViewById(R.id.update_action);
+                        ImageButton mShowChangelog = view.findViewById(R.id.show_changelog);
+                        OnlineImageView mImageView = view.findViewById(R.id.update_imageView);
+
+                        if (!(mBtnsLayout == null || mCard == null || mAction == null || mShowChangelog == null || mImageView == null)) {
+                            int btnsHeight = mBtnsLayout.getMeasuredHeight();
+                            int cardHeight = mCard.getMeasuredHeight();
+                            mBtnsLayout.setLayoutParams(Utils.getLayoutParams((int) (btnsHeight * 0.6), btnsHeight, mBtnsLayout));
+                            mImageView.setImageURL(update.getImageUrl());
+                            int w = (mImageView.getImageHeight() == 0 ? 0 : (cardHeight * mImageView.getImageWidth() / mImageView.getImageHeight()));
+                            mImageView.setLayoutParams(Utils.getLayoutParams(w, cardHeight, mImageView));
+                            mAction.setLayoutParams(Utils.getLayoutParams((int) (btnsHeight * 0.6), (int) (btnsHeight * 0.6), mAction));
+                            mShowChangelog.setLayoutParams(Utils.getLayoutParams(btnsHeight - (int) (btnsHeight * 0.6), btnsHeight - (int) (btnsHeight * 0.6), mShowChangelog));
+                            mAdapter.notifyItemChanged(i);
+
+                            /* a = !a ? false : mBtnsLayout.getMeasuredWidth() == btnsHeight && mBtnsLayout.getMeasuredHeight() == btnsHeight &&
+                                mImageView.getMeasuredWidth() == w && mImageView.getMeasuredHeight() == cardHeight &&
+                                mAction.getMeasuredWidth() == (int) (btnsHeight * 0.6) && mAction.getMeasuredHeight() == (int) (btnsHeight * 0.6) &&
+                                mShowChangelog.getMeasuredWidth() == (int) (btnsHeight * 0.3) && mShowChangelog.getMeasuredWidth() == (int) (btnsHeight * 0.3) &&
+                                mBtnsSpace.getMeasuredWidth() == btnsHeight && mBtnsSpace.getMeasuredHeight() == (btnsHeight - mAction.getMeasuredHeight() - mShowChangelog.getMeasuredHeight());*/
+                        } else a = false;
+                    }
+                    //在使用结束后不要忘记移除掉监听。
+                    if(a) recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            }
+        });
+        noticeView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                NoticeController controller = mUpdaterService == null ? null : mUpdaterService.getNoticeController();
+                if(controller != null && mAdapterN != null) {
+                    List<NoticeInfo> notices = controller.getNotices();
+                    for (int i = 0; i < noticeView.getChildCount(); i++) {
+                        NoticeInfo notice = notices.get(i);
+                        View view = noticeView.getLayoutManager().findViewByPosition(i);
+                        CardView mCard = view.findViewById(R.id.notice_card);
+                        OnlineImageView mImageView = view.findViewById(R.id.notice_imageView);
+
+                        mImageView.setImageURL(notice.getImageUrl());
+                        int cardHeight = mCard.getMeasuredHeight();
+                        int w = (mImageView.getImageHeight() == 0 ? 0 : (cardHeight * mImageView.getImageWidth() / mImageView.getImageHeight()));
+                        mImageView.setLayoutParams(Utils.getLayoutParams(w, cardHeight, mImageView));
+                        mAdapterN.notifyItemChanged(i);
+                    }
+                    noticeView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            }
+        });
+        if (animator instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+        }
+        if (animatorN instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animatorN).setSupportsChangeAnimations(false);
         }
 
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mAdapter.setUpdaterController(null);
-            mUpdaterService = null;
-            mAdapter.notifyDataSetChanged();
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
+                    String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
+                    handleDownloadStatusChange(downloadId);
+                    mAdapter.notifyDataSetChanged();
+                } else if (UpdaterController.ACTION_DOWNLOAD_PROGRESS.equals(intent.getAction()) ||
+                        UpdaterController.ACTION_INSTALL_PROGRESS.equals(intent.getAction())) {
+                    String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
+                    mAdapter.notifyItemChanged(downloadId);
+                } else if (UpdaterController.ACTION_UPDATE_REMOVED.equals(intent.getAction())) {
+                    String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
+                    mAdapter.removeItem(downloadId);
+                }
+            }
+        };
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        TextView headerTitle = findViewById(R.id.header_title);
+        headerTitle.setText(getString(R.string.header_title_text,
+                BuildInfoUtils.getBuildVersion()).replace("{os_name}",getString(R.string.os_name)));
+
+        updateLastCheckedString();
+
+        TextView headerBuildVersion = findViewById(R.id.header_build_version);
+        headerBuildVersion.setText(
+                getString(R.string.header_android_version, Build.VERSION.RELEASE));
+
+        TextView headerBuildDate = findViewById(R.id.header_build_date);
+        headerBuildDate.setText(StringGenerator.getDateLocalizedUTC(this,
+                DateFormat.LONG, BuildInfoUtils.getBuildDateTimestamp()));
+
+        // Switch between header title and appbar title minimizing overlaps
+        final CollapsingToolbarLayout collapsingToolbar =
+                findViewById(R.id.collapsing_toolbar);
+        final AppBarLayout appBar = findViewById(R.id.app_bar);
+        appBar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            boolean mIsShown = false;
+
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                int scrollRange = appBarLayout.getTotalScrollRange();
+                if (!mIsShown && scrollRange + verticalOffset < 10) {
+                    collapsingToolbar.setTitle(getString(R.string.display_name));
+                    mIsShown = true;
+                } else if (mIsShown && scrollRange + verticalOffset > 100) {
+                    collapsingToolbar.setTitle(null);
+                    mIsShown = false;
+                }
+            }
+        });
+
+        appBar.setOnFocusChangeListener((v, hasFocus) -> {
+
+        });
+
+        if (!Utils.hasTouchscreen(this)) {
+            // This can't be collapsed without a touchscreen
+            appBar.setExpanded(false);
         }
-    };
+
+        mRefreshAnimation = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f);
+        mRefreshAnimation.setInterpolator(new LinearInterpolator());
+        mRefreshAnimation.setDuration(1000);
+    }
 
     private void loadUpdatesList(File jsonFile, boolean manualRefresh)
             throws IOException, JSONException {
@@ -380,7 +361,7 @@ public class UpdatesActivity extends UpdatesListActivity {
             while (listIterator.hasNext()){
                 Update u=(Update)listIterator.next();
                 if (u.getTimestamp() > timestamp){
-                    changelog= u.getChangeLog() + (changelog == "" ? "" : "\n") + changelog;
+                    changelog = u.getChangeLog() + (changelog.equals("") ? "" : "\n") + changelog;
                     u.setChangeLog(changelog);
                     listIterator.remove();
                     listIterator.add(u);
@@ -558,7 +539,7 @@ public class UpdatesActivity extends UpdatesListActivity {
         String lastCheckString = getString(R.string.header_last_updates_check,
                 StringGenerator.getDateLocalized(this, DateFormat.LONG, lastCheck),
                 StringGenerator.getTimeLocalized(this, lastCheck));
-        TextView headerLastCheck = (TextView) findViewById(R.id.header_last_check);
+        TextView headerLastCheck = findViewById(R.id.header_last_check);
         headerLastCheck.setText(lastCheckString);
     }
 
@@ -608,7 +589,7 @@ public class UpdatesActivity extends UpdatesListActivity {
         Switch dataWarning = view.findViewById(R.id.preferences_mobile_data_warning);
         Switch abPerfMode = view.findViewById(R.id.preferences_ab_perf_mode);
 
-        if (!Utils.isABDevice()) {
+        if (Utils.isABDevice()) {
             abPerfMode.setVisibility(View.GONE);
         }
 

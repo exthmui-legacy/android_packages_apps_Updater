@@ -8,6 +8,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.*;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class AdvancedSettings extends AppCompatActivity{
@@ -27,13 +28,11 @@ public class AdvancedSettings extends AppCompatActivity{
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                this.finish();
-                return false;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            this.finish();
+            return false;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
@@ -44,23 +43,14 @@ public class AdvancedSettings extends AppCompatActivity{
         @Override
         public void onCreate(Bundle savedInstanceState){
             super.onCreate(savedInstanceState);
-            mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+            mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(Objects.requireNonNull(getContext()));
             mPrefAutoDownload = (MultiSelectListPreference) findPreference("auto_download");
+            mDownloadPath = (EditTextPreference) findPreference("downcload_path");
             mDownloadPath = (EditTextPreference) findPreference("download_path");
 
-            mPrefAutoDownload.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    return OnPreferenceChange(preference, newValue);
-                }
-            });
+            mPrefAutoDownload.setOnPreferenceChangeListener(this::OnPreferenceChange);
 
-            mDownloadPath.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    return OnPreferenceChange(preference, newValue);
-                }
-            });
+            mDownloadPath.setOnPreferenceChangeListener(this::OnPreferenceChange);
 
             OnPreferenceChange(mPrefAutoDownload, null);
             OnPreferenceChange(mDownloadPath, null);
@@ -74,31 +64,56 @@ public class AdvancedSettings extends AppCompatActivity{
         private boolean OnPreferenceChange(Preference preference, @Nullable Object newValue) {
             try {
                 if (preference == mPrefAutoDownload) {
-                    Set<String> prefsValue = (Set) newValue;
+                    Set<String> prefsValue = (Set<String>) newValue;
+                    String summary = Objects.requireNonNull(getActivity()).getString(R.string.setting_auto_updates_download_use);
                     if (prefsValue == null) {
-                        prefsValue = mSharedPreferences.getStringSet(preference.getKey(), prefsValue);
+                        prefsValue = mSharedPreferences.getStringSet(preference.getKey(), null);
+                        if (prefsValue == null) return true;
                     }
-                    if (prefsValue.contains("wifi") && prefsValue.contains("data")) {
-                        preference.setSummary(R.string.setting_auto_updates_download_wifi_and_data);
-                    } else if (prefsValue.contains("wifi")) {
-                        preference.setSummary(R.string.setting_auto_updates_download_wifi);
-                    } else if (prefsValue.contains("data")) {
-                        preference.setSummary(R.string.setting_auto_updates_download_data);
-                    } else {
-                        preference.setSummary(R.string.setting_auto_updates_download_never);
+                    if (prefsValue.contains("cellular")) {
+                        summary += (summary.equals(getActivity().getString(R.string.setting_auto_updates_download_use)) ? " " : " & ") +
+                                getActivity().getString(R.string.setting_auto_updates_download_cellular);
                     }
+                    if (prefsValue.contains("wifi")) {
+                        summary += (summary.equals(getActivity().getString(R.string.setting_auto_updates_download_use)) ? " " : " & ") +
+                                getActivity().getString(R.string.setting_auto_updates_download_wifi);
+                    }
+                    if (prefsValue.contains("bluetooth")) {
+                        summary += (summary.equals(getActivity().getString(R.string.setting_auto_updates_download_use)) ? " " : " & ") +
+                                getActivity().getString(R.string.setting_auto_updates_download_bluetooth);
+                    }
+                    if (prefsValue.contains("ethernet")) {
+                        summary += (summary.equals(getActivity().getString(R.string.setting_auto_updates_download_use)) ? " " : " & ") +
+                                getActivity().getString(R.string.setting_auto_updates_download_ethernet);
+                    }
+                    if (prefsValue.contains("vpn")) {
+                        summary += (summary.equals(getActivity().getString(R.string.setting_auto_updates_download_use)) ? " " : " & ") +
+                                getActivity().getString(R.string.setting_auto_updates_download_vpn);
+                    }
+                    if (prefsValue.contains("wifi_aware")) {
+                        summary += (summary.equals(getActivity().getString(R.string.setting_auto_updates_download_use)) ? " " : " & ") +
+                                getActivity().getString(R.string.setting_auto_updates_download_wifi_aware);
+                    }
+                    if (prefsValue.contains("6lowpan")) {
+                        summary += (summary.equals(getActivity().getString(R.string.setting_auto_updates_download_use)) ? " " : " & ") +
+                                getActivity().getString(R.string.setting_auto_updates_download_6lowpan);
+                    }
+                    if (summary.equals(getActivity().getString(R.string.setting_auto_updates_download_use))) {
+                        summary = getActivity().getString(R.string.setting_auto_updates_download_never);
+                    } else summary += " " + getActivity().getString(R.string.setting_auto_updates_download_network);
+
+                    preference.setSummary(summary);
                 }
                 if (preference == mDownloadPath) {
-                    if(newValue == null || newValue == ""){
+                    if (newValue == null || newValue == "") {
                         mDownloadPath.setText(getString(R.string.download_path));
                         return false;
-                    }else preference.setSummary((String)newValue);
+                    } else preference.setSummary((String) newValue);
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
-            } finally {
-                return true;
             }
+            return true;
         }
     }
 }

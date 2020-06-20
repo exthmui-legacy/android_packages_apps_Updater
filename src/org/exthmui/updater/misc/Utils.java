@@ -16,35 +16,27 @@
 package org.exthmui.updater.misc;
 
 import android.app.AlarmManager;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.Environment;
 import android.os.SystemProperties;
 import android.os.storage.StorageManager;
-import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
-import org.exthmui.updater.model.Notice;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import androidx.preference.PreferenceManager;
 import org.exthmui.updater.R;
 import org.exthmui.updater.UpdatesDbHelper;
 import org.exthmui.updater.controller.UpdaterService;
-import org.exthmui.updater.model.Update;
-import org.exthmui.updater.model.UpdateBaseInfo;
-import org.exthmui.updater.model.UpdateInfo;
-import org.exthmui.updater.model.NoticeInfo;
+import org.exthmui.updater.model.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -62,8 +54,8 @@ public class Utils {
     }
 
     public static File getDownloadPath(Context context) {
-        String path = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).getString("download_path",context.getString(R.string.download_path));
-        return new File(path == null || path == "" ? path : context.getString(R.string.download_path));
+        String path = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).getString("download_path", context.getString(R.string.download_path));
+        return new File(path.equals("") ? path : context.getString(R.string.download_path));
     }
 
     public static File getExportPath(Context context) {
@@ -80,6 +72,7 @@ public class Utils {
     public static File getCachedUpdateList(Context context) {
         return new File(context.getCacheDir(), "updates.json");
     }
+
     public static File getCachedNoticeList(Context context) {
         return new File(context.getCacheDir(), "notices.json");
     }
@@ -103,11 +96,11 @@ public class Utils {
         update.setVersion(object.getString("version"));
         return update;
     }
+
     // This should really return an NoticeInfo object, but currently this only
     // used to initialize NoticeInfo objects
     private static NoticeInfo parseJsonNotice(JSONObject object) throws JSONException {
-        Notice notice = new  Notice(object.getString("title"),object.getString("text"),object.getString("id"),object.getString("imageurl"));
-        return notice;
+        return new Notice(object.getString("title"), object.getString("text"), object.getString("id"), object.getString("imageurl"));
     }
 
     public static boolean isCompatible(UpdateBaseInfo update) {
@@ -124,7 +117,7 @@ public class Utils {
             Log.d(TAG, update.getName() + " has type " + update.getType());
             return false;
         }
-        if(!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))){
+        if (!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))) {
             Log.d(TAG, update.getName() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
             return false;
         }
@@ -132,9 +125,9 @@ public class Utils {
     }
 
     public static boolean canInstall(UpdateBaseInfo update) {
-        return  update.getDownloadUrl() != ""  && update.getDownloadUrl() != null  &&
-                !((update.getRequirement() >= SystemProperties.getInt(Constants.PROP_BUILD_DATE,0) &&
-                update.getPType().equals("incremental"))) &&
+        return !update.getDownloadUrl().equals("") && update.getDownloadUrl() != null &&
+                !((update.getRequirement() >= SystemProperties.getInt(Constants.PROP_BUILD_DATE, 0) &&
+                        update.getPType().equals("incremental"))) &&
                 update.getVersion().equalsIgnoreCase(
                         SystemProperties.get(Constants.PROP_BUILD_VERSION));
     }
@@ -143,14 +136,14 @@ public class Utils {
             throws IOException, JSONException {
         List<UpdateInfo> updates = new ArrayList<>();
 
-        String json = "";
+        StringBuilder json = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            for (String line; (line = br.readLine()) != null;) {
-                json += line;
+            for (String line; (line = br.readLine()) != null; ) {
+                json.append(line);
             }
         }
 
-        JSONObject obj = new JSONObject(json);
+        JSONObject obj = new JSONObject(json.toString());
         JSONArray updatesList = obj.getJSONArray("response");
         for (int i = 0; i < updatesList.length(); i++) {
             if (updatesList.isNull(i)) {
@@ -174,14 +167,14 @@ public class Utils {
             throws IOException, JSONException {
         List<NoticeInfo> notices = new ArrayList<>();
 
-        String json = "";
+        StringBuilder json = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            for (String line; (line = br.readLine()) != null;) {
-                json += line;
+            for (String line; (line = br.readLine()) != null; ) {
+                json.append(line);
             }
         }
 
-        JSONObject obj = new JSONObject(json);
+        JSONObject obj = new JSONObject(json.toString());
         JSONArray noticesList = obj.getJSONArray("response");
         for (int i = 0; i < noticesList.length(); i++) {
             if (noticesList.isNull(i)) {
@@ -200,13 +193,8 @@ public class Utils {
 
          */
         //对id进行排序 大>小
-        Log.d(TAG, "Sorting updates(list)." );
-        notices.sort(new Comparator<NoticeInfo>() {
-            @Override
-            public int compare(NoticeInfo o1, NoticeInfo o2) {
-                return o1.getId().compareTo(o2.getId());
-            }
-        });
+        Log.d(TAG, "Sorting updates(list).");
+        notices.sort(Comparator.comparing(NoticeInfo::getId));
         return notices;
     }
 
@@ -224,10 +212,10 @@ public class Utils {
                 serverUrl = context.getString(R.string.updater_server_url);
             }
         }
-        if(isUpdate){
-            return serverUrl+"/"+device+"/updates.json";
-        }else {
-            return serverUrl+"/notices.json";
+        if (isUpdate) {
+            return serverUrl + "/" + device + "/updates.json";
+        } else {
+            return serverUrl + "/notices.json";
         }
         //.replace("{type}", type);
         //.replace("{incr}", incrementalVersion);
@@ -249,29 +237,44 @@ public class Utils {
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(
                 Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        return !(info == null || !info.isConnected() || !info.isAvailable());
+        Network network = cm.getActiveNetwork();
+        NetworkCapabilities nc = cm.getNetworkCapabilities(network);
+        return !(nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) |
+                nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) |
+                nc.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) |
+                nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
     }
 
     public static boolean isOnWifiOrEthernet(Context context) {
+        if (isNetworkAvailable(context)) return false;
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(
                 Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
-        return (info != null && (info.getType() == ConnectivityManager.TYPE_ETHERNET
-                || info.getType() == ConnectivityManager.TYPE_WIFI));
+        Network network = cm.getActiveNetwork();
+        NetworkCapabilities nc = cm.getNetworkCapabilities(network);
+        return nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) |
+                nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET);
     }
 
     public static String getNetworkType(Context context) {
         if (context != null) {
-            ConnectivityManager manager = (ConnectivityManager) context.getSystemService(
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(
                     Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = (manager == null ? null : manager.getActiveNetworkInfo());
-            if (networkInfo != null) {
-                if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE || networkInfo.getType() == ConnectivityManager.TYPE_BLUETOOTH) {
-                    return "data";
-                } else if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI || networkInfo.getType() == ConnectivityManager.TYPE_ETHERNET)  {
-                    return "wifi";
-                } else return "others";
+            Network network = cm.getActiveNetwork();
+            NetworkCapabilities nc = cm.getNetworkCapabilities(network);
+            if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return "cellular";
+            } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                return "wifi";
+            } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH)) {
+                return "bluetooth";
+            } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                return "ethernet";
+            } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                return "vpn";
+            } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI_AWARE)) {
+                return "wifi_aware";
+            } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_LOWPAN)) {
+                return "6lowpan";
             }
         }
         return "null";
@@ -283,8 +286,8 @@ public class Utils {
      * @param oldJson old update list
      * @param newJson new update list
      * @return true if newJson has at least a compatible update not available in oldJson
-     * @throws IOException
-     * @throws JSONException
+     * @throws IOException   Throws IOException
+     * @throws JSONException Throws JSONException
      */
     public static boolean checkForNewUpdates(File oldJson, File newJson, boolean isUpdate)
             throws IOException, JSONException {
@@ -302,7 +305,7 @@ public class Utils {
                     return true;
                 }
             }
-        }else {
+        } else {
             List<NoticeInfo> oldList = parseJsonNotice(oldJson);
             List<NoticeInfo> newList = parseJsonNotice(newJson);
             Set<String> oldIds = new HashSet<>();
@@ -323,7 +326,7 @@ public class Utils {
     /**
      * Get the offset to the compressed data of a file inside the given zip
      *
-     * @param zipFile input zip file
+     * @param zipFile   input zip file
      * @param entryPath full path of the entry
      * @return the offset of the compressed, or -1 if not found
      * @throws IllegalArgumentException if the given entry is not found
@@ -366,7 +369,7 @@ public class Utils {
      * the user can't access and that might have stale files. This can happen if
      * the data of the application are wiped.
      *
-     * @param context
+     * @param context Context
      */
     public static void cleanupDownloadsDir(Context context) {
         File downloadPath = getDownloadPath(context);
@@ -441,7 +444,7 @@ public class Utils {
     }
 
     public static boolean isABDevice() {
-        return SystemProperties.getBoolean(Constants.PROP_AB_DEVICE, false);
+        return !SystemProperties.getBoolean(Constants.PROP_AB_DEVICE, false);
     }
 
     public static boolean isABUpdate(ZipFile zipFile) {

@@ -24,15 +24,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
-import androidx.core.app.NotificationCompat;
 import android.util.Log;
-
+import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 import org.exthmui.updater.controller.UpdaterController;
-import org.json.JSONException;
 import org.exthmui.updater.download.DownloadClient;
 import org.exthmui.updater.misc.Constants;
 import org.exthmui.updater.misc.Utils;
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,7 +70,7 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
             scheduleRepeatingUpdatesCheck(context);
         }
 
-        if (!Utils.isNetworkAvailable(context)) {
+        if (Utils.isNetworkAvailable(context)) {
             Log.d(TAG, "Network not available, scheduling new check");
             scheduleUpdatesCheck(context);
             return;
@@ -110,7 +109,7 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
                     SharedPreferences mSharedPreferences = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context);
                     Set<String> tAutoDlSet = mSharedPreferences.getStringSet("auto_download",null);
 
-                    /**
+                    /*
                      * 自动下载
                      */
                     if (tAutoDlSet != null) {

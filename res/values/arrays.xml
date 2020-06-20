@@ -19,12 +19,22 @@
 
 <resources>
     <string-array name="auto_updates_download_entries">
+        <item>@string/setting_auto_updates_download_cellular</item>
         <item>@string/setting_auto_updates_download_wifi</item>
-        <item>@string/setting_auto_updates_download_data</item>
+        <item>@string/setting_auto_updates_download_bluetooth</item>
+        <item>@string/setting_auto_updates_download_ethernet</item>
+        <item>@string/setting_auto_updates_download_vpn</item>
+        <item>@string/setting_auto_updates_download_wifi_aware</item>
+        <item>@string/setting_auto_updates_download_6lowpan</item>
     </string-array>
     <string-array name="auto_updates_download_values">
+        <item>cellular</item>
         <item>wifi</item>
-        <item>data</item>
+        <item>bluetooth</item>
+        <item>ethernet</item>
+        <item>vpn</item>
+        <item>wifi_aware</item>
+        <item>6lowpan</item>
     </string-array>
     <string-array name="menu_auto_updates_check_interval_entries" translatable="false">
         <item>@string/menu_auto_updates_check_interval_never</item>

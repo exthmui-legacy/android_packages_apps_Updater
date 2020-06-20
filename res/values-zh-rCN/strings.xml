@@ -31,9 +31,15 @@
     <string name="setting_auto_updates_check_interval_never">从不</string>
     -->
     <string name="setting_auto_updates_download">自动下载更新</string>
-    <string name="setting_auto_updates_download_wifi">使用WLAN</string>
-    <string name="setting_auto_updates_download_data">使用移动数据</string>
-    <string name="setting_auto_updates_download_wifi_and_data">使用WLAN和移动数据</string>
+    <string name="setting_auto_updates_download_use">使用</string>
+    <string name="setting_auto_updates_download_network">网络</string>
+    <string name="setting_auto_updates_download_cellular">移动数据</string>
+    <string name="setting_auto_updates_download_wifi">WiFi</string>
+    <string name="setting_auto_updates_download_bluetooth">蓝牙</string>
+    <string name="setting_auto_updates_download_ethernet">有线网络</string>
+    <string name="setting_auto_updates_download_vpn">VPN</string>
+    <string name="setting_auto_updates_download_wifi_aware">WiFi Aware</string>
+    <string name="setting_auto_updates_download_6lowpan">6LoWPan</string>
     <string name="setting_auto_updates_download_never">从不</string>
     <string name="setting_download_settings">下载设置</string>
     <string name="setting_update_type">更新类型</string>

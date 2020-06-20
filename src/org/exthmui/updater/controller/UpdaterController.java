@@ -15,14 +15,14 @@
  */
 package org.exthmui.updater.controller;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.util.Log;
-
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import org.exthmui.updater.UpdatesDbHelper;
 import org.exthmui.updater.download.DownloadClient;
 import org.exthmui.updater.misc.Utils;
@@ -32,12 +32,7 @@ import org.exthmui.updater.model.UpdateStatus;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class UpdaterController {
 
@@ -62,7 +57,7 @@ public class UpdaterController {
     private final File mDownloadRoot;
 
     private int mActiveDownloads = 0;
-    private Set<String> mVerifyingUpdates = new HashSet<>();
+    private final Set<String> mVerifyingUpdates = new HashSet<>();
 
     public static synchronized UpdaterController getInstanceReceiver(Context context) {
         return UpdaterController.getInstance(context);
@@ -78,6 +73,9 @@ public class UpdaterController {
         return sUpdaterController;
     }
 
+    private final Map<String, DownloadEntry> mDownloads = new HashMap<>();
+
+    @SuppressLint("InvalidWakeLockTag")
     private UpdaterController(Context context) {
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
         mUpdatesDbHelper = new UpdatesDbHelper(context);
@@ -94,15 +92,38 @@ public class UpdaterController {
         }
     }
 
-    private class DownloadEntry {
-        final Update mUpdate;
-        DownloadClient mDownloadClient;
-        private DownloadEntry(Update update) {
-            mUpdate = update;
-        }
-    }
+    private DownloadClient.ProgressListener getProgressListener(final String downloadId) {
+        return new DownloadClient.ProgressListener() {
+            private long mLastUpdate = 0;
+            private int mProgress = 0;
 
-    private Map<String, DownloadEntry> mDownloads = new HashMap<>();
+            @Override
+            public void update(long bytesRead, long contentLength, long speed, long eta,
+                               boolean done) {
+                Update update = mDownloads.get(downloadId).mUpdate;
+                if (contentLength <= 0) {
+                    if (update.getFileSize() <= 0) {
+                        return;
+                    } else {
+                        contentLength = update.getFileSize();
+                    }
+                }
+                if (contentLength <= 0) {
+                    return;
+                }
+                final long now = SystemClock.elapsedRealtime();
+                int progress = Math.round((float) (bytesRead * 100 / contentLength));
+                if (progress != mProgress || mLastUpdate - now > MAX_REPORT_INTERVAL_MS) {
+                    mProgress = progress;
+                    mLastUpdate = now;
+                    update.setProgress(progress);
+                    update.setEta(eta);
+                    update.setSpeed(speed);
+                    notifyDownloadProgress(downloadId);
+                }
+            }
+        };
+    }
 
     void notifyUpdateChange(String downloadId) {
         Intent intent = new Intent();
@@ -206,39 +227,7 @@ public class UpdaterController {
         };
     }
 
-    private DownloadClient.ProgressListener getProgressListener(final String downloadId) {
-        return new DownloadClient.ProgressListener() {
-            private long mLastUpdate = 0;
-            private int mProgress = 0;
-
-            @Override
-            public void update(long bytesRead, long contentLength, long speed, long eta,
-                    boolean done) {
-                Update update = mDownloads.get(downloadId).mUpdate;
-                if (contentLength <= 0) {
-                    if (update.getFileSize() <= 0) {
-                        return;
-                    } else {
-                        contentLength = update.getFileSize();
-                    }
-                }
-                if (contentLength <= 0) {
-                    return;
-                }
-                final long now = SystemClock.elapsedRealtime();
-                int progress = Math.round(bytesRead * 100 / contentLength);
-                if (progress != mProgress || mLastUpdate - now > MAX_REPORT_INTERVAL_MS) {
-                    mProgress = progress;
-                    mLastUpdate = now;
-                    update.setProgress(progress);
-                    update.setEta(eta);
-                    update.setSpeed(speed);
-                    notifyDownloadProgress(downloadId);
-                }
-            }
-        };
-    }
-
+    @SuppressLint("SetWorldReadable")
     private void verifyUpdateAsync(final String downloadId) {
         mVerifyingUpdates.add(downloadId);
         new Thread(() -> {
@@ -260,6 +249,24 @@ public class UpdaterController {
         }).start();
     }
 
+    private boolean fixUpdateStatus(Update update) {
+        switch (update.getPersistentStatus()) {
+            case UpdateStatus.Persistent.VERIFIED:
+            case UpdateStatus.Persistent.INCOMPLETE:
+                if (update.getFile() == null || !update.getFile().exists()) {
+                    update.setStatus(UpdateStatus.UNKNOWN);
+                    return false;
+                } else if (update.getFileSize() > 0) {
+                    update.setStatus(UpdateStatus.PAUSED);
+                    int progress = Math.round(
+                            (float) (update.getFile().length() * 100 / update.getFileSize()));
+                    update.setProgress(progress);
+                }
+                break;
+        }
+        return true;
+    }
+
     private boolean verifyPackage(File file) {
         try {
             android.os.RecoverySystem.verifyPackage(file, null, null);
@@ -277,22 +284,11 @@ public class UpdaterController {
         }
     }
 
-    private boolean fixUpdateStatus(Update update) {
-        switch (update.getPersistentStatus()) {
-            case UpdateStatus.Persistent.VERIFIED:
-            case UpdateStatus.Persistent.INCOMPLETE:
-                if (update.getFile() == null || !update.getFile().exists()) {
-                    update.setStatus(UpdateStatus.UNKNOWN);
-                    return false;
-                } else if (update.getFileSize() > 0) {
-                    update.setStatus(UpdateStatus.PAUSED);
-                    int progress = Math.round(
-                            update.getFile().length() * 100 / update.getFileSize());
-                    update.setProgress(progress);
-                }
-                break;
+    public void setPerformanceMode(boolean enable) {
+        if (Utils.isABDevice()) {
+            return;
         }
-        return true;
+        ABUpdateInstaller.getInstance(mContext, this).setPerformanceMode(enable);
     }
 
     public void setUpdatesNotAvailableOnline(List<String> downloadIds) {
@@ -551,10 +547,12 @@ public class UpdaterController {
         return ABUpdateInstaller.isWaitingForReboot(mContext, downloadId);
     }
 
-    public void setPerformanceMode(boolean enable) {
-        if (!Utils.isABDevice()) {
-            return;
+    private class DownloadEntry {
+        final Update mUpdate;
+        DownloadClient mDownloadClient;
+
+        private DownloadEntry(Update update) {
+            mUpdate = update;
         }
-        ABUpdateInstaller.getInstance(mContext, this).setPerformanceMode(enable);
     }
 }
