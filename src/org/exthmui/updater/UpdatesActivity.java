@@ -63,8 +63,8 @@ public class UpdatesActivity extends UpdatesListActivity {
     private UpdaterService mUpdaterService;
     private BroadcastReceiver mBroadcastReceiver;
 
-    private UpdatesListAdapter mAdapter;
-    private NoticesListAdapter mAdapterN;
+    private UpdatesListAdapter mUpdatesListAdapter;
+    private NoticesListAdapter mNoticesListAdapter;
 
     private View mRefreshIconView;
     private RotateAnimation mRefreshAnimation;
@@ -78,16 +78,16 @@ public class UpdatesActivity extends UpdatesListActivity {
                                        IBinder service) {
             UpdaterService.LocalBinder binder = (UpdaterService.LocalBinder) service;
             mUpdaterService = binder.getService();
-            mAdapter.setUpdaterController(mUpdaterService.getUpdaterController());
-            mAdapterN.setUpdaterController(mUpdaterService.getUpdaterController());
-            getUpdatesList();
+            mUpdatesListAdapter.setUpdaterController(mUpdaterService.getUpdaterController());
+            mNoticesListAdapter.setUpdaterController(mUpdaterService.getUpdaterController());
+            getLists();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mAdapter.setUpdaterController(null);
+            mUpdatesListAdapter.setUpdaterController(null);
             mUpdaterService = null;
-            mAdapter.notifyDataSetChanged();
+            mUpdatesListAdapter.notifyDataSetChanged();
         }
     };
 
@@ -140,7 +140,7 @@ public class UpdatesActivity extends UpdatesListActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh: {
-                downloadUpdatesList(true);
+                downloadLists(true);
                 return true;
             }
             case R.id.menu_preferences: {
@@ -166,10 +166,10 @@ public class UpdatesActivity extends UpdatesListActivity {
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         RecyclerView noticeView = findViewById(R.id.notice_view);
-        mAdapter = new UpdatesListAdapter(this);
-        mAdapterN = new NoticesListAdapter(this);
-        recyclerView.setAdapter(mAdapter);
-        noticeView.setAdapter(mAdapterN);
+        mUpdatesListAdapter = new UpdatesListAdapter(this);
+        mNoticesListAdapter = new NoticesListAdapter(this);
+        recyclerView.setAdapter(mUpdatesListAdapter);
+        noticeView.setAdapter(mNoticesListAdapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         RecyclerView.LayoutManager layoutManagerN = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -185,9 +185,9 @@ public class UpdatesActivity extends UpdatesListActivity {
             @Override
             public void onGlobalLayout() {
                 UpdaterController controller = mUpdaterService == null ? null : mUpdaterService.getUpdaterController();
-                if(controller != null && mAdapter != null) {
+                if (controller != null && mUpdatesListAdapter != null) {
                     List<UpdateInfo> updates = controller.getUpdates();
-                    boolean a=true;
+                    boolean a = true;
                     for (int i = 0; i < recyclerView.getChildCount(); i++) {
                         UpdateInfo update = updates.get(i);
                         View view = recyclerView.getLayoutManager().findViewByPosition(i);
@@ -206,7 +206,7 @@ public class UpdatesActivity extends UpdatesListActivity {
                             mImageView.setLayoutParams(Utils.getLayoutParams(w, cardHeight, mImageView));
                             mAction.setLayoutParams(Utils.getLayoutParams((int) (btnsHeight * 0.6), (int) (btnsHeight * 0.6), mAction));
                             mShowChangelog.setLayoutParams(Utils.getLayoutParams(btnsHeight - (int) (btnsHeight * 0.6), btnsHeight - (int) (btnsHeight * 0.6), mShowChangelog));
-                            mAdapter.notifyItemChanged(i);
+                            mUpdatesListAdapter.notifyItemChanged(i);
 
                             /* a = !a ? false : mBtnsLayout.getMeasuredWidth() == btnsHeight && mBtnsLayout.getMeasuredHeight() == btnsHeight &&
                                 mImageView.getMeasuredWidth() == w && mImageView.getMeasuredHeight() == cardHeight &&
@@ -224,7 +224,7 @@ public class UpdatesActivity extends UpdatesListActivity {
             @Override
             public void onGlobalLayout() {
                 UpdaterController controller = mUpdaterService == null ? null : mUpdaterService.getUpdaterController();
-                if(controller != null && mAdapterN != null) {
+                if (controller != null && mNoticesListAdapter != null) {
                     List<NoticeInfo> notices = controller.getNotices();
                     for (int i = 0; i < noticeView.getChildCount(); i++) {
                         NoticeInfo notice = notices.get(i);
@@ -236,7 +236,7 @@ public class UpdatesActivity extends UpdatesListActivity {
                         int cardHeight = mCard.getMeasuredHeight();
                         int w = (mImageView.getImageHeight() == 0 ? 0 : (cardHeight * mImageView.getImageWidth() / mImageView.getImageHeight()));
                         mImageView.setLayoutParams(Utils.getLayoutParams(w, cardHeight, mImageView));
-                        mAdapterN.notifyItemChanged(i);
+                        mNoticesListAdapter.notifyItemChanged(i);
                     }
                     noticeView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 }
@@ -255,14 +255,14 @@ public class UpdatesActivity extends UpdatesListActivity {
                 if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
                     String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
                     handleDownloadStatusChange(downloadId);
-                    mAdapter.notifyDataSetChanged();
+                    mUpdatesListAdapter.notifyDataSetChanged();
                 } else if (UpdaterController.ACTION_DOWNLOAD_PROGRESS.equals(intent.getAction()) ||
                         UpdaterController.ACTION_INSTALL_PROGRESS.equals(intent.getAction())) {
                     String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
-                    mAdapter.notifyItemChanged(downloadId);
+                    mUpdatesListAdapter.notifyItemChanged(downloadId);
                 } else if (UpdaterController.ACTION_UPDATE_REMOVED.equals(intent.getAction())) {
                     String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
-                    mAdapter.removeItem(downloadId);
+                    mUpdatesListAdapter.removeItem(downloadId);
                 }
             }
         };
@@ -367,13 +367,13 @@ public class UpdatesActivity extends UpdatesListActivity {
                 }
             }
             // Sort:from big to small
-            Log.d(TAG, "Sorting updates(list)(big > small)." );
+            Log.d(TAG, "Sorting updates(list)(big > small).");
             sortedUpdates.sort((u1, u2) -> Long.compare(u2.getTimestamp(), u1.getTimestamp()));
             for (UpdateInfo update : sortedUpdates) {
                 updateIds.add(update.getDownloadId());
             }
-            mAdapter.setData(updateIds);
-            mAdapter.notifyDataSetChanged();
+            mUpdatesListAdapter.setData(updateIds);
+            mUpdatesListAdapter.notifyDataSetChanged();
         }
     }
 
@@ -384,10 +384,8 @@ public class UpdatesActivity extends UpdatesListActivity {
         boolean newNotices = false;
 
         List<NoticeInfo> notices = Utils.parseJsonNotice(jsonFile);
-        List<String> noticesOnline = new ArrayList<>();
         for (NoticeInfo notice : notices) {
             newNotices |= controller.addNotice(notice);
-            noticesOnline.add(notice.getId());
         }
 
         List<String> noticeIds = new ArrayList<>();
@@ -400,19 +398,36 @@ public class UpdatesActivity extends UpdatesListActivity {
             for (NoticeInfo notice : sortedNotices) {
                 noticeIds.add(notice.getId());
             }
-            mAdapterN.setData(noticeIds);
-            mAdapterN.notifyDataSetChanged();
+            mNoticesListAdapter.setData(noticeIds);
+            mNoticesListAdapter.notifyDataSetChanged();
         }
     }
-    private void getUpdatesList() {
-        File jsonFile = Utils.getCachedUpdateList(this);
-        File jsonFile2 = Utils.getCachedNoticeList(this);
-        if (jsonFile.exists() && jsonFile2.exists()) {
+
+    private void getLists() {
+        getNoticesList();
+        getUpdatesList();
+    }
+
+    private void getNoticesList() {
+        File cachedNoticeList = Utils.getCachedNoticeList(this);
+        if (cachedNoticeList.exists()) {
             try {
-                loadUpdatesList(jsonFile, false);
-                Log.d(TAG, "Cached update list parsed");
-                loadNoticesList(jsonFile2);
+                loadNoticesList(cachedNoticeList);
                 Log.d(TAG, "Cached notice list parsed");
+            } catch (IOException | JSONException e) {
+                Log.e(TAG, "Error while parsing json list", e);
+            }
+        } else {
+            downloadNoticesList(false);
+        }
+    }
+
+    private void getUpdatesList() {
+        File cachedUpdateList = Utils.getCachedUpdateList(this);
+        if (cachedUpdateList.exists()) {
+            try {
+                loadUpdatesList(cachedUpdateList, false);
+                Log.d(TAG, "Cached update list parsed");
             } catch (IOException | JSONException e) {
                 Log.e(TAG, "Error while parsing json list", e);
             }
@@ -445,14 +460,65 @@ public class UpdatesActivity extends UpdatesListActivity {
         }
     }
 
+    private void downloadLists(final boolean manualRefresh) {
+        downloadNoticesList(manualRefresh);
+        downloadUpdatesList(manualRefresh);
+    }
+
+    private void downloadNoticesList(final boolean manualRefresh) {
+        final File jsonFile = Utils.getCachedNoticeList(this);
+        final File jsonFileTmp = new File(jsonFile.getAbsolutePath() + UUID.randomUUID());
+        String url = Utils.getServerURL(this, false);
+        Log.d(TAG, "Checking " + url);
+
+        DownloadClient.DownloadCallback callback = new DownloadClient.DownloadCallback() {
+            @Override
+            public void onFailure(final boolean cancelled) {
+                Log.e(TAG, "Could not download updates list");
+                runOnUiThread(() -> {
+                    if (!cancelled) {
+                        showSnackbar(R.string.snack_notices_check_failed, Snackbar.LENGTH_LONG);
+                    }
+                    refreshAnimationStop();
+                });
+            }
+
+            @Override
+            public void onResponse(int statusCode, String url, DownloadClient.Headers headers) {
+            }
+
+            @Override
+            public void onSuccess(File destination) {
+                runOnUiThread(() -> {
+                    Log.d(TAG, "Notice list downloaded");
+                    processNewJson(jsonFile, jsonFileTmp, manualRefresh, false);
+                    refreshAnimationStop();
+                });
+            }
+        };
+
+        final DownloadClient downloadClient;
+        try {
+            downloadClient = new DownloadClient.Builder()
+                    .setUrl(url)
+                    .setDestination(jsonFileTmp)
+                    .setDownloadCallback(callback)
+                    .build();
+        } catch (IOException exception) {
+            Log.e(TAG, "Could not build download client");
+            showSnackbar(R.string.snack_notices_check_failed, Snackbar.LENGTH_LONG);
+            return;
+        }
+
+        refreshAnimationStart();
+        downloadClient.start();
+    }
+
     private void downloadUpdatesList(final boolean manualRefresh) {
         final File jsonFile = Utils.getCachedUpdateList(this);
-        final File jsonFile2 = Utils.getCachedNoticeList(this);
         final File jsonFileTmp = new File(jsonFile.getAbsolutePath() + UUID.randomUUID());
-        final File jsonFileTmp2 = new File(jsonFile2.getAbsolutePath() + UUID.randomUUID());
-        String url = Utils.getServerURL(this,true);
-        String url2 = Utils.getServerURL(this,false);
-        Log.d(TAG, "Checking " + url + " and " + url2);
+        String url = Utils.getServerURL(this, true);
+        Log.d(TAG, "Checking " + url);
 
         DownloadClient.DownloadCallback callback = new DownloadClient.DownloadCallback() {
             @Override
@@ -468,7 +534,7 @@ public class UpdatesActivity extends UpdatesListActivity {
 
             @Override
             public void onResponse(int statusCode, String url,
-                    DownloadClient.Headers headers) {
+                                   DownloadClient.Headers headers) {
             }
 
             @Override
@@ -481,44 +547,12 @@ public class UpdatesActivity extends UpdatesListActivity {
             }
         };
 
-        DownloadClient.DownloadCallback callback2 = new DownloadClient.DownloadCallback() {
-            @Override
-            public void onFailure(final boolean cancelled) {
-                Log.e(TAG, "Could not download updates list");
-                runOnUiThread(() -> {
-                    if (!cancelled) {
-                        showSnackbar(R.string.snack_notices_check_failed, Snackbar.LENGTH_LONG);
-                    }
-                    refreshAnimationStop();
-                });
-            }
-
-            @Override
-            public void onResponse(int statusCode, String url, DownloadClient. Headers headers) {
-            }
-
-            @Override
-            public void onSuccess(File destination) {
-                runOnUiThread(() -> {
-                    Log.d(TAG, "Notice list downloaded");
-                    processNewJson(jsonFile2, jsonFileTmp2, manualRefresh, false);
-                    refreshAnimationStop();
-                });
-            }
-        };
-
         final DownloadClient downloadClient;
-        final DownloadClient downloadClient2;
         try {
             downloadClient = new DownloadClient.Builder()
                     .setUrl(url)
                     .setDestination(jsonFileTmp)
                     .setDownloadCallback(callback)
-                    .build();
-            downloadClient2 = new DownloadClient.Builder()
-                    .setUrl(url2)
-                    .setDestination(jsonFileTmp2)
-                    .setDownloadCallback(callback2)
                     .build();
         } catch (IOException exception) {
             Log.e(TAG, "Could not build download client");
@@ -528,7 +562,6 @@ public class UpdatesActivity extends UpdatesListActivity {
 
         refreshAnimationStart();
         downloadClient.start();
-        downloadClient2.start();
     }
 
     private void updateLastCheckedString() {
