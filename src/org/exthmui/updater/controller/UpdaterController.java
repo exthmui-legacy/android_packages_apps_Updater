@@ -26,9 +26,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import org.exthmui.updater.UpdatesDbHelper;
 import org.exthmui.updater.download.DownloadClient;
 import org.exthmui.updater.misc.Utils;
-import org.exthmui.updater.model.Update;
-import org.exthmui.updater.model.UpdateInfo;
-import org.exthmui.updater.model.UpdateStatus;
+import org.exthmui.updater.model.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +39,9 @@ public class UpdaterController {
     public static final String ACTION_UPDATE_REMOVED = "action_update_removed";
     public static final String ACTION_UPDATE_STATUS = "action_update_status_change";
     public static final String EXTRA_DOWNLOAD_ID = "extra_download_id";
+
+    public static final String ACTION_NOTICE_REMOVED = "action_update_removed";
+    public static final String EXTRA_NOTICE_ID = "extra_notice_id";
 
     private final String TAG = "UpdaterController";
 
@@ -58,6 +59,7 @@ public class UpdaterController {
 
     private int mActiveDownloads = 0;
     private final Set<String> mVerifyingUpdates = new HashSet<>();
+    private Map<String, Notice> mNotices = new HashMap<>();
 
     public static synchronized UpdaterController getInstanceReceiver(Context context) {
         return UpdaterController.getInstance(context);
@@ -333,6 +335,19 @@ public class UpdaterController {
         }
     }
 
+    public boolean addNotice(final NoticeInfo noticeInfo) {
+        Log.d(TAG, "Adding notice: " + noticeInfo.getId());
+        if (mNotices.containsKey(noticeInfo.getId())) {
+            Log.d(TAG, "Notice (" + noticeInfo.getId() + ") already added");
+            Notice noticeAdded = mNotices.get(noticeInfo.getId());
+            noticeAdded.setImageUrl(noticeInfo.getImageUrl());
+            return false;
+        }
+        Notice notice = new Notice(noticeInfo);
+        mNotices.put(notice.getId(), new Notice(notice));
+        return true;
+    }
+
     public boolean addUpdate(UpdateInfo update) {
         return addUpdate(update, true);
     }
@@ -484,6 +499,14 @@ public class UpdaterController {
         return true;
     }
 
+    public List<NoticeInfo> getNotices() {
+        List<NoticeInfo> notices = new ArrayList<>();
+        for (Notice notice : mNotices.values()) {
+            notices.add(notice);
+        }
+        return notices;
+    }
+
     public Set<String> getIds() {
         return mDownloads.keySet();
     }
@@ -496,10 +519,15 @@ public class UpdaterController {
         return updates;
     }
 
-    public UpdateInfo getLatestUpdate(){
+    public UpdateInfo getLatestUpdate() {
         List<UpdateInfo> updates = getUpdates();
         updates.sort((u1, u2) -> Long.compare(u2.getTimestamp(), u1.getTimestamp()));
         return updates.get(0);
+    }
+
+    public NoticeInfo getNotice(String id) {
+        Notice notice = mNotices.get(id);
+        return notice;
     }
 
     public UpdateInfo getUpdate(String downloadId) {

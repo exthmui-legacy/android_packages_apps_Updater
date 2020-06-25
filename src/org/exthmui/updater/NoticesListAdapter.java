@@ -16,13 +16,12 @@
 package org.exthmui.updater;
 
 import android.app.Activity;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import org.exthmui.updater.controller.NoticeController;
+import androidx.recyclerview.widget.RecyclerView;
+import org.exthmui.updater.controller.UpdaterController;
 import org.exthmui.updater.model.NoticeInfo;
 import org.exthmui.updater.ui.OnlineImageView;
 
@@ -34,7 +33,7 @@ public class NoticesListAdapter extends RecyclerView.Adapter<NoticesListAdapter.
 
     private List<String> mIds;
     private Activity mActivity;
-    private NoticeController mNoticeController;
+    private UpdaterController mUpdaterController;
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -68,7 +67,7 @@ public class NoticesListAdapter extends RecyclerView.Adapter<NoticesListAdapter.
     public void onBindViewHolder(final ViewHolder viewHolder, int i) {
 
         final String id = mIds.get(i);
-        NoticeInfo notice = mNoticeController.getNotice(id);
+        NoticeInfo notice = mUpdaterController.getNotice(id);
 
         String title = notice.getTitle();
         String text = notice.getTexts();
@@ -85,8 +84,8 @@ public class NoticesListAdapter extends RecyclerView.Adapter<NoticesListAdapter.
         mIds = ids;
     }
 
-    public void setNoticeController(NoticeController noticeController) {
-        mNoticeController = noticeController;
+    public void setUpdaterController(UpdaterController updaterController) {
+        mUpdaterController = updaterController;
         notifyDataSetChanged();
     }
 

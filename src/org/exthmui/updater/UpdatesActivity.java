@@ -39,7 +39,6 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
-import org.exthmui.updater.controller.NoticeController;
 import org.exthmui.updater.controller.UpdaterController;
 import org.exthmui.updater.controller.UpdaterService;
 import org.exthmui.updater.download.DownloadClient;
@@ -80,7 +79,7 @@ public class UpdatesActivity extends UpdatesListActivity {
             UpdaterService.LocalBinder binder = (UpdaterService.LocalBinder) service;
             mUpdaterService = binder.getService();
             mAdapter.setUpdaterController(mUpdaterService.getUpdaterController());
-            mAdapterN.setNoticeController(mUpdaterService.getNoticeController());
+            mAdapterN.setUpdaterController(mUpdaterService.getUpdaterController());
             getUpdatesList();
         }
 
@@ -224,7 +223,7 @@ public class UpdatesActivity extends UpdatesListActivity {
         noticeView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                NoticeController controller = mUpdaterService == null ? null : mUpdaterService.getNoticeController();
+                UpdaterController controller = mUpdaterService == null ? null : mUpdaterService.getUpdaterController();
                 if(controller != null && mAdapterN != null) {
                     List<NoticeInfo> notices = controller.getNotices();
                     for (int i = 0; i < noticeView.getChildCount(); i++) {
@@ -381,7 +380,7 @@ public class UpdatesActivity extends UpdatesListActivity {
     private void loadNoticesList(File jsonFile)
             throws IOException, JSONException {
         Log.d(TAG, "Adding remote notices");
-        NoticeController controller = mUpdaterService.getNoticeController();
+        UpdaterController controller = mUpdaterService.getUpdaterController();
         boolean newNotices = false;
 
         List<NoticeInfo> notices = Utils.parseJsonNotice(jsonFile);

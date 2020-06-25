@@ -26,11 +26,10 @@ import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.format.Formatter;
 import android.util.Log;
-
+import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import org.exthmui.updater.R;
 import org.exthmui.updater.UpdaterReceiver;
 import org.exthmui.updater.UpdatesActivity;
@@ -74,14 +73,12 @@ public class UpdaterService extends Service {
     private NotificationCompat.BigTextStyle mNotificationStyle;
 
     private UpdaterController mUpdaterController;
-    private NoticeController mNoticeController;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         mUpdaterController = UpdaterController.getInstance(this);
-        mNoticeController = NoticeController.getInstance(this);
 
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         NotificationChannel notificationChannel = new NotificationChannel(
@@ -237,10 +234,6 @@ public class UpdaterService extends Service {
 
     public UpdaterController getUpdaterController() {
         return mUpdaterController;
-    }
-
-    public NoticeController getNoticeController() {
-        return mNoticeController;
     }
 
     private void tryStopSelf() {
