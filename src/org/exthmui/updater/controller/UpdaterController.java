@@ -59,7 +59,7 @@ public class UpdaterController {
 
     private int mActiveDownloads = 0;
     private final Set<String> mVerifyingUpdates = new HashSet<>();
-    private Map<String, Notice> mNotices = new HashMap<>();
+    private final Map<String, Notice> mNotices = new HashMap<>();
 
     public static synchronized UpdaterController getInstanceReceiver(Context context) {
         return UpdaterController.getInstance(context);
@@ -83,6 +83,7 @@ public class UpdaterController {
         mUpdatesDbHelper = new UpdatesDbHelper(context);
         mDownloadRoot = Utils.getDownloadPath(context);
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        assert powerManager != null;
         mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Updater");
         mWakeLock.setReferenceCounted(false);
         mContext = context.getApplicationContext();
@@ -156,7 +157,7 @@ public class UpdaterController {
     }
 
     private void tryReleaseWakelock() {
-        if (!hasActiveDownloads()) {
+        if (hasNoActiveDownloads()) {
             mWakeLock.release();
         }
     }
@@ -236,6 +237,7 @@ public class UpdaterController {
             Update update = mDownloads.get(downloadId).mUpdate;
             File file = update.getFile();
             if (file.exists() && verifyPackage(file)) {
+                //noinspection ResultOfMethodCallIgnored
                 file.setReadable(true, false);
                 update.setPersistentStatus(UpdateStatus.Persistent.VERIFIED);
                 mUpdatesDbHelper.changeUpdateStatus(update);
@@ -277,6 +279,7 @@ public class UpdaterController {
         } catch (Exception e) {
             Log.e(TAG, "Verification failed", e);
             if (file.exists()) {
+                //noinspection ResultOfMethodCallIgnored
                 file.delete();
             } else {
                 // The download was probably stopped. Exit silently
@@ -357,6 +360,7 @@ public class UpdaterController {
         return true;
     }
 
+    @SuppressLint("WakelockTimeout")
     public boolean startDownload(String downloadId) {
         Log.d(TAG, "Starting " + downloadId);
         if (!mDownloads.containsKey(downloadId) || isDownloading(downloadId)) {
@@ -392,6 +396,7 @@ public class UpdaterController {
         return true;
     }
 
+    @SuppressLint("WakelockTimeout")
     public boolean resumeDownload(String downloadId) {
         Log.d(TAG, "Resuming " + downloadId);
         if (!mDownloads.containsKey(downloadId) || isDownloading(downloadId)) {
@@ -484,11 +489,7 @@ public class UpdaterController {
     }
 
     public List<NoticeInfo> getNotices() {
-        List<NoticeInfo> notices = new ArrayList<>();
-        for (Notice notice : mNotices.values()) {
-            notices.add(notice);
-        }
-        return notices;
+        return new ArrayList<>(mNotices.values());
     }
 
     public Set<String> getIds() {
@@ -505,13 +506,13 @@ public class UpdaterController {
 
     public UpdateInfo getLatestUpdate() {
         List<UpdateInfo> updates = getUpdates();
+        if (updates.size() == 0) return null;
         updates.sort((u1, u2) -> Long.compare(u2.getTimestamp(), u1.getTimestamp()));
         return updates.get(0);
     }
 
     public NoticeInfo getNotice(String id) {
-        Notice notice = mNotices.get(id);
-        return notice;
+        return mNotices.get(id);
     }
 
     public UpdateInfo getUpdate(String downloadId) {
@@ -529,8 +530,8 @@ public class UpdaterController {
                 mDownloads.get(downloadId).mDownloadClient != null;
     }
 
-    public boolean hasActiveDownloads() {
-        return mActiveDownloads > 0;
+    public boolean hasNoActiveDownloads() {
+        return !(mActiveDownloads > 0);
     }
 
     public boolean isVerifyingUpdate() {
@@ -541,9 +542,9 @@ public class UpdaterController {
         return mVerifyingUpdates.contains(downloadId);
     }
 
-    public boolean isInstallingUpdate() {
-        return UpdateInstaller.isInstalling() ||
-                ABUpdateInstaller.isInstallingUpdate(mContext);
+    public boolean isNotInstallingUpdate() {
+        return !UpdateInstaller.isInstalling() &&
+                !ABUpdateInstaller.isInstallingUpdate(mContext);
     }
 
     public boolean isInstallingUpdate(String downloadId) {
@@ -551,8 +552,8 @@ public class UpdaterController {
                 ABUpdateInstaller.isInstallingUpdate(mContext, downloadId);
     }
 
-    public boolean isInstallingABUpdate() {
-        return ABUpdateInstaller.isInstallingUpdate(mContext);
+    public boolean isNotInstallingABUpdate() {
+        return !ABUpdateInstaller.isInstallingUpdate(mContext);
     }
 
     public boolean isWaitingForReboot(String downloadId) {

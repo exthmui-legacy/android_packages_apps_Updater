@@ -19,20 +19,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.UpdateEngine;
 import android.os.UpdateEngineCallback;
-import androidx.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
-
+import androidx.preference.PreferenceManager;
 import org.exthmui.updater.misc.Constants;
 import org.exthmui.updater.misc.Utils;
 import org.exthmui.updater.model.Update;
 import org.exthmui.updater.model.UpdateStatus;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -51,7 +46,7 @@ class ABUpdateInstaller {
     private final Context mContext;
     private String mDownloadId;
 
-    private UpdateEngine mUpdateEngine;
+    private final UpdateEngine mUpdateEngine;
     private boolean mBound;
 
     private boolean mFinalizing;

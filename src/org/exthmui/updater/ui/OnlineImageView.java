@@ -1,5 +1,6 @@
 package org.exthmui.updater.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,7 +11,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.annotation.SuppressLint;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,7 +29,7 @@ public class OnlineImageView extends ImageView {
     private int mImageHeight = 0;
 
 
-    private static String TAG="OnlineImageView";
+    private static final String TAG = "OnlineImageView";
 
     /**
      * 获取Image实际宽度
@@ -70,12 +70,33 @@ public class OnlineImageView extends ImageView {
             //获取屏幕的宽度
             width = displayMetrics.widthPixels;
         }
-        Log.d(TAG,"ImageView Width:"+width);
+        Log.d(TAG, "ImageView Width:" + width);
         return width;
     }
 
+    //子线程不能操作UI，通过Handler设置图片
+    @SuppressLint("HandlerLeak")
+    private final Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case GET_DATA_SUCCESS:
+                    Bitmap bitmap = (Bitmap) msg.obj;
+                    setImageBitmap(bitmap);
+                    break;
+                case NETWORK_ERROR:
+                    Log.d(TAG, "Network Error.Failed to get the Image.");
+                    break;
+                case SERVER_ERROR:
+                    Log.d(TAG, "Server Error.Failed to get the Image.");
+                    break;
+            }
+        }
+    };
+
     /**
      * 获取ImageView实际的高度
+     *
      * @return 返回ImageView实际的高度
      */
     public int realImageViewHeight() {
@@ -96,40 +117,13 @@ public class OnlineImageView extends ImageView {
             //获取ImageView高度的最大值
             height = displayMetrics.heightPixels;
         }
-        Log.d(TAG,"ImageView Heigh:"+height);
+        Log.d(TAG, "ImageView Heigh:" + height);
         return height;
     }
 
     /**
-     * 获得需要压缩的比率
-     *
-     * @param options 需要传入已经BitmapFactory.decodeStream(is, null, options);
-     * @return 返回压缩的比率，最小为1
-     */
-    public int getInSampleSize(BitmapFactory.Options options) {
-        int inSampleSize = 1;
-        int realWith = realImageViewWith();
-        int realHeight = realImageViewHeight();
-
-        int outWidth = options.outWidth;
-        this.mImageWidth = outWidth;
-        Log.d(TAG,"Real Image Width"+outWidth);
-        int outHeight = options.outHeight;
-        this.mImageHeight = outHeight;
-        Log.d(TAG,"Real Image Height"+outHeight);
-
-        //获取比率最大的
-        if (outWidth > realWith || outHeight > realHeight) {
-            int withRadio = Math.round(outWidth / realWith);
-            int heightRadio = Math.round(outHeight / realHeight);
-            inSampleSize = withRadio > heightRadio ? withRadio : heightRadio;
-        }
-        Log.d(TAG,"InSampleSize:"+inSampleSize);
-        return inSampleSize;
-    }
-
-    /**
      * 根据输入流返回一个压缩的图片
+     *
      * @param input 图片的输入流
      * @return 压缩的图片
      */
@@ -161,24 +155,33 @@ public class OnlineImageView extends ImageView {
         return BitmapFactory.decodeStream(is2, null, options);
     }
 
-    //子线程不能操作UI，通过Handler设置图片
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what){
-                case GET_DATA_SUCCESS:
-                    Bitmap bitmap = (Bitmap) msg.obj;
-                    setImageBitmap(bitmap);
-                    break;
-                case NETWORK_ERROR:
-                    Log.d(TAG,"Network Error.Failed to get the Image.");
-                    break;
-                case SERVER_ERROR:
-                    Log.d(TAG,"Server Error.Failed to get the Image.");
-                    break;
-            }
+    /**
+     * 获得需要压缩的比率
+     *
+     * @param options 需要传入已经BitmapFactory.decodeStream(is, null, options);
+     * @return 返回压缩的比率，最小为1
+     */
+    public int getInSampleSize(BitmapFactory.Options options) {
+        int inSampleSize = 1;
+        int realWith = realImageViewWith();
+        int realHeight = realImageViewHeight();
+
+        int outWidth = options.outWidth;
+        this.mImageWidth = outWidth;
+        Log.d(TAG, "Real Image Width" + outWidth);
+        int outHeight = options.outHeight;
+        this.mImageHeight = outHeight;
+        Log.d(TAG, "Real Image Height" + outHeight);
+
+        //获取比率最大的
+        if (outWidth > realWith || outHeight > realHeight) {
+            int withRadio = Math.round(outWidth / realWith);
+            int heightRadio = Math.round(outHeight / realHeight);
+            inSampleSize = Math.max(withRadio, heightRadio);
         }
-    };
+        Log.d(TAG, "InSampleSize:" + inSampleSize);
+        return inSampleSize;
+    }
 
     public OnlineImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -195,7 +198,7 @@ public class OnlineImageView extends ImageView {
     //设置网络图片
     public void setImageURL(final String path) {
         //开启一个线程用于联网
-        if (path == ""|| path == null){
+        if (path.equals("")) {
             return;
         }
         new Thread() {

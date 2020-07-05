@@ -30,14 +30,21 @@
     <!--
         Optional placeholders replaced at runtime:
           {device} - Device name
+          {incr} - Incremental version
+          {type} - Package type
     -->
-    <string name="updater_server_url" translatable="false">
-        https://raw.githubusercontent.com/exthmui/update_scripts/master
+    <string name="updates_server_url" translatable="false">
+        https://raw.githubusercontent.com/exthmui/update_scripts/master/{device}/updates.json
+    </string>
+    <string name="notices_server_url" translatable="false">
+        https://raw.githubusercontent.com/exthmui/update_scripts/master/notices.json
     </string>
     <!--
     <string name="text_update_type_incremental">Incremental</string>
     <string name="text_update_type_full">Full</string>
     -->
+
+    <string name="main_no_updates">No new updates found</string>
     <string name="show_changelog">Show ChangeLog</string>
     <string name="title_notices">Notices</string>
     <string name="title_updates">Updates</string>
@@ -57,7 +64,8 @@
     <string name="setting_download_settings">Download Settings</string>
     <string name="setting_save_path">Download path</string>
     <string name="setting_update_settings">Update settings</string>
-    <string name="setting_update_server_url">Update server URL</string>
+    <string name="setting_updates_server_url">Updates server URL</string>
+    <string name="setting_notices_server_url">Notices server URL</string>
     <string name="setting_auto_delete_updates">Delete updates when installed</string>
     <string name="setting_clean_cache_after_update">Clean cache when installed</string>
     <string name="setting_clean_cache_after_update_summary">Clean Dalvik/ART cache when installed</string>
@@ -97,6 +105,7 @@
 
     <string name="menu_refresh">Refresh</string>
     <string name="menu_preferences">Preferences</string>
+    <string name="menu_all_updates">All Updates</string>
     <string name="menu_auto_updates_check">Auto updates check</string>
     <string name="menu_auto_updates_check_interval_daily">Once a day</string>
     <string name="menu_auto_updates_check_interval_weekly">Once a week</string>
@@ -127,11 +136,11 @@
 
     <string name="snack_update_not_installable">This update can\'t be installed on top of the current build.</string>
 
-    <string name="header_title_text" translatable="false">{os_name}\n%1$s</string>
-    <string name="header_android_version">Android
+    <string name="main_title_text" translatable="false">{os_name} %1$s</string>
+    <string name="main_android_version">Android
         <xliff:g id="version" example="7.1.2">%1$s</xliff:g>
     </string>
-    <string name="header_last_updates_check">Last checked: <xliff:g id="date" example="1 January 1970">%1$s
+    <string name="main_last_updates_check">Last checked: <xliff:g id="date" example="1 January 1970">%1$s
     </xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)
     </string>
 
@@ -151,7 +160,9 @@
         <xliff:g id="percentage" example="56">%4$s</xliff:g>
     </string>
     <string name="list_verifying_update">Verifying update</string>
-    <string name="list_no_updates">No new updates found. To manually check for new updates, use the Refresh button.
+    <string name="list_no_updates">No new updates found.
+    </string>
+    <string name="list_no_notices">No notices found.
     </string>
 
     <string name="action_download">Download</string>
@@ -247,4 +258,8 @@
     <string name="icon_of_show_changelog_button" translatable="false">Icon of show Changelog button</string>
     <string name="list_build_version">{os_name} <xliff:g example="10.0" id="version">%1$s</xliff:g></string>
     <string name="setting_update_type">Update type</string>
+    <string name="exthmui_logo">exTHmUI Logo</string>
+    <string name="check_for_updates">Check for updates</string>
+    <string name="more_information">More information</string>
+    <string name="importance_icon">Importance icon</string>
 </resources>

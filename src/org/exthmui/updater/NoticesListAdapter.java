@@ -15,15 +15,15 @@
  */
 package org.exthmui.updater;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import org.exthmui.updater.controller.UpdaterController;
 import org.exthmui.updater.model.NoticeInfo;
-import org.exthmui.updater.ui.OnlineImageView;
 
 import java.util.List;
 
@@ -31,35 +31,22 @@ public class NoticesListAdapter extends RecyclerView.Adapter<NoticesListAdapter.
 
     private static final String TAG = "NoticesListAdapter";
 
+    private final BaseActivity mActivity;
     private List<String> mIds;
-    private Activity mActivity;
     private UpdaterController mUpdaterController;
+    private final boolean mIsShort;
 
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-
-        private TextView mTitle;
-        private TextView mText;
-        private OnlineImageView mImageView;
-
-
-        public ViewHolder(final View view) {
-            super(view);
-
-            mTitle = (TextView) view.findViewById(R.id.notice_title);
-            mText = (TextView) view.findViewById(R.id.notice_text);
-            mImageView = (OnlineImageView) view.findViewById(R.id.notice_imageView);
-        }
-    }
-
-    public NoticesListAdapter(UpdatesListActivity activity) {
+    public NoticesListAdapter(BaseActivity activity, boolean isShort) {
         mActivity = activity;
+        mIsShort = isShort;
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.notice_item_view, viewGroup, false);
+                .inflate(mIsShort ? R.layout.notice_short_item_view : R.layout.notice_item_view, viewGroup, false);
         return new ViewHolder(view);
     }
 
@@ -73,6 +60,24 @@ public class NoticesListAdapter extends RecyclerView.Adapter<NoticesListAdapter.
         String text = notice.getTexts();
         viewHolder.mTitle.setText(title);
         viewHolder.mText.setText(text);
+        if (mIsShort) {
+            viewHolder.mNoticeLayout.setOnClickListener(v -> mActivity.startActivity(new Intent(mActivity, NoticesActivity.class)));
+        }
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+
+        private final View mNoticeLayout;
+        private final TextView mTitle;
+        private final TextView mText;
+
+        public ViewHolder(final View view) {
+            super(view);
+
+            mNoticeLayout = view.findViewById(R.id.notice_layout);
+            mTitle = view.findViewById(R.id.notice_title);
+            mText = view.findViewById(R.id.notice_text);
+        }
     }
 
     @Override

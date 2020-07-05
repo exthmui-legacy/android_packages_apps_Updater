@@ -22,10 +22,9 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.SystemClock;
-import androidx.core.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
-
+import androidx.core.app.NotificationCompat;
 import org.exthmui.updater.misc.FileUtils;
 
 import java.io.File;
@@ -68,6 +67,7 @@ public class ExportUpdateService extends Service {
             mIsExporting = true;
             File source = (File) intent.getSerializableExtra(EXTRA_SOURCE_FILE);
             File destination = (File) intent.getSerializableExtra(EXTRA_DEST_FILE);
+            assert destination != null;
             startExporting(source, destination);
         } else if (ACTION_STOP_EXPORTING.equals(intent.getAction())) {
             if (mIsExporting) {
@@ -92,48 +92,6 @@ public class ExportUpdateService extends Service {
         return START_NOT_STICKY;
     }
 
-    private class ExportRunnable implements Runnable {
-        private File mSource;
-        private File mDestination;
-        private FileUtils.ProgressCallBack mProgressCallBack;
-        private Runnable mRunnableComplete;
-        private Runnable mRunnableFailed;
-
-        private ExportRunnable(File source, File destination,
-                FileUtils.ProgressCallBack progressCallBack,
-                Runnable runnableComplete, Runnable runnableFailed) {
-            mSource = source;
-            mDestination = destination;
-            mProgressCallBack = progressCallBack;
-            mRunnableComplete = runnableComplete;
-            mRunnableFailed = runnableFailed;
-        }
-
-        @Override
-        public void run() {
-            try {
-                FileUtils.copyFile(mSource, mDestination, mProgressCallBack);
-                mIsExporting = false;
-                if (!mExportThread.isInterrupted()) {
-                    Log.d(TAG, "Completed");
-                    mRunnableComplete.run();
-                } else {
-                    Log.d(TAG, "Aborted");
-                }
-            } catch (IOException e) {
-                mIsExporting = false;
-                Log.e(TAG, "Could not copy file", e);
-                mRunnableFailed.run();
-            } finally {
-                stopSelf();
-            }
-        }
-
-        private void cleanUp() {
-            mDestination.delete();
-        }
-    }
-
     private void startExporting(File source, File destination) {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -141,6 +99,7 @@ public class ExportUpdateService extends Service {
                 EXPORT_NOTIFICATION_CHANNEL,
                 getString(R.string.export_channel_title),
                 NotificationManager.IMPORTANCE_LOW);
+        assert notificationManager != null;
         notificationManager.createNotificationChannel(notificationChannel);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this,
@@ -205,6 +164,49 @@ public class ExportUpdateService extends Service {
                 runnableComplete, runnableFailed);
         mExportThread = new Thread(mExportRunnable);
         mExportThread.start();
+    }
+
+    private class ExportRunnable implements Runnable {
+        private final File mSource;
+        private final File mDestination;
+        private final FileUtils.ProgressCallBack mProgressCallBack;
+        private final Runnable mRunnableComplete;
+        private final Runnable mRunnableFailed;
+
+        private ExportRunnable(File source, File destination,
+                               FileUtils.ProgressCallBack progressCallBack,
+                               Runnable runnableComplete, Runnable runnableFailed) {
+            mSource = source;
+            mDestination = destination;
+            mProgressCallBack = progressCallBack;
+            mRunnableComplete = runnableComplete;
+            mRunnableFailed = runnableFailed;
+        }
+
+        @Override
+        public void run() {
+            try {
+                FileUtils.copyFile(mSource, mDestination, mProgressCallBack);
+                mIsExporting = false;
+                if (!mExportThread.isInterrupted()) {
+                    Log.d(TAG, "Completed");
+                    mRunnableComplete.run();
+                } else {
+                    Log.d(TAG, "Aborted");
+                }
+            } catch (IOException e) {
+                mIsExporting = false;
+                Log.e(TAG, "Could not copy file", e);
+                mRunnableFailed.run();
+            } finally {
+                stopSelf();
+            }
+        }
+
+        private void cleanUp() {
+            //noinspection ResultOfMethodCallIgnored
+            mDestination.delete();
+        }
     }
 
     private PendingIntent getStopPendingIntent() {

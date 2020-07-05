@@ -35,9 +35,13 @@
 
     <PreferenceCategory app:title="@string/setting_update_settings">
         <EditTextPreference
-                android:key="update_channel"
-                android:title="@string/setting_update_server_url"
-                android:defaultValue="@string/updater_server_url" />
+                android:key="updates_server_url"
+                android:title="@string/setting_updates_server_url"
+                android:defaultValue="@string/updates_server_url"/>
+        <EditTextPreference
+                android:key="notices_server_url"
+                android:title="@string/setting_notices_server_url"
+                android:defaultValue="@string/notices_server_url"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

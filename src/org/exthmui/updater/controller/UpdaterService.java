@@ -42,6 +42,7 @@ import org.exthmui.updater.model.UpdateStatus;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.util.Objects;
 
 public class UpdaterService extends Service {
 
@@ -118,7 +119,7 @@ public class UpdaterService extends Service {
                     handleInstallProgress(update);
                 } else if (UpdaterController.ACTION_UPDATE_REMOVED.equals(intent.getAction())) {
                     Bundle extras = mNotificationBuilder.getExtras();
-                    if (extras != null && downloadId.equals(
+                    if (extras != null && Objects.requireNonNull(downloadId).equals(
                             extras.getString(UpdaterController.EXTRA_DOWNLOAD_ID))) {
                         mNotificationBuilder.setExtras(null);
                         mNotificationManager.cancel(NOTIFICATION_ID);
@@ -237,8 +238,8 @@ public class UpdaterService extends Service {
     }
 
     private void tryStopSelf() {
-        if (!mHasClients && !mUpdaterController.hasActiveDownloads() &&
-                !mUpdaterController.isInstallingUpdate()) {
+        if (!mHasClients && mUpdaterController.hasNoActiveDownloads() &&
+                mUpdaterController.isNotInstallingUpdate()) {
             Log.d(TAG, "Service no longer needed, stopping");
             stopSelf();
         }
@@ -477,7 +478,7 @@ public class UpdaterService extends Service {
         String buildDate = StringGenerator.getDateLocalizedUTC(this,
                 DateFormat.MEDIUM, update.getTimestamp());
         String buildInfo = getString(R.string.list_build_version_date,
-                BuildInfoUtils.getBuildVersion(), buildDate).replace("{os_name}",UpdatesActivity.getContextFromUA().getResources().getString(R.string.os_name));
+                BuildInfoUtils.getBuildVersion(), buildDate).replace("{os_name}", getResources().getString(R.string.os_name));
         mNotificationStyle.setBigContentTitle(buildInfo);
         mNotificationBuilder.setContentTitle(buildInfo);
     }

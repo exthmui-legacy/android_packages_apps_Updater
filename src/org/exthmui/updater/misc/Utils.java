@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.os.BatteryManager;
 import android.os.Environment;
 import android.os.SystemProperties;
 import android.os.storage.StorageManager;
@@ -32,6 +33,7 @@ import android.widget.Toast;
 import androidx.preference.PreferenceManager;
 import org.exthmui.updater.R;
 import org.exthmui.updater.UpdatesDbHelper;
+import org.exthmui.updater.controller.UpdaterController;
 import org.exthmui.updater.controller.UpdaterService;
 import org.exthmui.updater.model.*;
 import org.json.JSONArray;
@@ -104,23 +106,24 @@ public class Utils {
     }
 
     public static boolean isCompatible(UpdateBaseInfo update) {
-        if (update.getVersion().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION)) < 0) {
-            Log.d(TAG, update.getName() + " is older than current Android version");
-            return false;
-        }
-        if (!SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) &&
-                update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
-            Log.d(TAG, update.getName() + " is older than/equal to the current build");
-            return false;
-        }
-        if (!update.getType().equalsIgnoreCase(SystemProperties.get(Constants.PROP_RELEASE_TYPE))) {
-            Log.d(TAG, update.getName() + " has type " + update.getType());
-            return false;
-        }
-        if (!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))) {
-            Log.d(TAG, update.getName() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
-            return false;
-        }
+        // TODO: Remove this before commit
+//        if (update.getVersion().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION)) < 0) {
+//            Log.d(TAG, update.getName() + " is older than current Android version");
+//            return false;
+//        }
+//        if (!SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) &&
+//                update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
+//            Log.d(TAG, update.getName() + " is older than/equal to the current build");
+//            return false;
+//        }
+//        if (!update.getType().equalsIgnoreCase(SystemProperties.get(Constants.PROP_RELEASE_TYPE))) {
+//            Log.d(TAG, update.getName() + " has type " + update.getType());
+//            return false;
+//        }
+//        if (!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))) {
+//            Log.d(TAG, update.getName() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
+//            return false;
+//        }
         return true;
     }
 
@@ -200,25 +203,35 @@ public class Utils {
 
     public static String getServerURL(Context context, boolean isUpdate) {
         SharedPreferences mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        //String incrementalVersion = SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL);
         String device = SystemProperties.get(Constants.PROP_NEXT_DEVICE,
                 SystemProperties.get(Constants.PROP_DEVICE));
-        //String type = SystemProperties.get(Constants.PROP_RELEASE_TYPE).toLowerCase(Locale.ROOT);
+        String incrementalVersion = SystemProperties.get(Constants.PROP_BUILD_VERSION_INCREMENTAL);
+        String type = SystemProperties.get(Constants.PROP_RELEASE_TYPE).toLowerCase(Locale.ROOT);
 
-        String serverUrl = mSharedPreferences.getString("update_channel", "");
-        if (serverUrl.trim().isEmpty()) {
-            serverUrl = SystemProperties.get(Constants.PROP_UPDATER_URI);
+        String serverUrl;
+        if (isUpdate) {
+            serverUrl = mSharedPreferences.getString("updates_server_url", "");
             if (serverUrl.trim().isEmpty()) {
-                serverUrl = context.getString(R.string.updater_server_url);
+                serverUrl = SystemProperties.get(Constants.PROP_UPDATER_UPDATES_URI);
+                if (serverUrl.trim().isEmpty()) {
+                    serverUrl = context.getString(R.string.updates_server_url);
+                }
+            }
+        } else {
+            serverUrl = mSharedPreferences.getString("notices_server_url", "");
+            if (serverUrl.trim().isEmpty()) {
+                serverUrl = SystemProperties.get(Constants.PROP_UPDATER_NOTICES_URI);
+                if (serverUrl.trim().isEmpty()) {
+                    serverUrl = context.getString(R.string.notices_server_url);
+                }
             }
         }
-        if (isUpdate) {
-            return serverUrl + "/" + device + "/updates.json";
-        } else {
-            return serverUrl + "/notices.json";
-        }
-        //.replace("{type}", type);
-        //.replace("{incr}", incrementalVersion);
+
+        //noinspection ResultOfMethodCallIgnored
+        serverUrl.replace("{device}", device)
+                .replace("{incr}", incrementalVersion)
+                .replace("{type}", type);
+        return serverUrl;
     }
 
     public static String getUpgradeBlockedURL(Context context) {
@@ -237,8 +250,10 @@ public class Utils {
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(
                 Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
         Network network = cm.getActiveNetwork();
         NetworkCapabilities nc = cm.getNetworkCapabilities(network);
+        if (nc == null) return false;
         return !(nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) |
                 nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) |
                 nc.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) |
@@ -249,8 +264,10 @@ public class Utils {
         if (isNetworkAvailable(context)) return false;
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(
                 Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
         Network network = cm.getActiveNetwork();
         NetworkCapabilities nc = cm.getNetworkCapabilities(network);
+        if (nc == null) return false;
         return nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) |
                 nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET);
     }
@@ -259,8 +276,10 @@ public class Utils {
         if (context != null) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(
                     Context.CONNECTIVITY_SERVICE);
+            if (cm == null) return "null";
             Network network = cm.getActiveNetwork();
             NetworkCapabilities nc = cm.getNetworkCapabilities(network);
+            if (nc == null) return "null";
             if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
                 return "cellular";
             } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
@@ -360,6 +379,7 @@ public class Utils {
             return;
         }
         for (File file : uncryptFiles) {
+            //noinspection ResultOfMethodCallIgnored
             file.delete();
         }
     }
@@ -386,6 +406,7 @@ public class Utils {
                 lastUpdatePath != null) {
             File lastUpdate = new File(lastUpdatePath);
             if (lastUpdate.exists()) {
+                //noinspection ResultOfMethodCallIgnored
                 lastUpdate.delete();
                 // Remove the pref not to delete the file if re-downloaded
                 preferences.edit().remove(Constants.PREF_INSTALL_PACKAGE_PATH).apply();
@@ -415,6 +436,7 @@ public class Utils {
         for (File file : files) {
             if (!knownPaths.contains(file.getAbsolutePath())) {
                 Log.d(TAG, "Deleting " + file.getAbsolutePath());
+                //noinspection ResultOfMethodCallIgnored
                 file.delete();
             }
         }
@@ -467,12 +489,17 @@ public class Utils {
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(
                 Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText(label, text);
+        if (clipboard == null) {
+            Log.e(TAG, "Clipboard add failed, because clipboard == null");
+            return;
+        }
         clipboard.setPrimaryClip(clip);
         Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show();
     }
 
     public static boolean isEncrypted(Context context, File file) {
         StorageManager sm = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+        assert sm != null;
         return sm.isEncrypted(file);
     }
 
@@ -508,4 +535,29 @@ public class Utils {
         params.height = th;
         return params;
     }
+
+
+    public static boolean isBatteryLevelOk(Context context) {
+        Intent intent = context.registerReceiver(null,
+                new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        assert intent != null;
+        if (!intent.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false)) {
+            return true;
+        }
+        int percent = Math.round(100.f * intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 100) /
+                intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100));
+        int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0);
+        int BATTERY_PLUGGED_ANY = BatteryManager.BATTERY_PLUGGED_AC | BatteryManager.BATTERY_PLUGGED_USB | BatteryManager.BATTERY_PLUGGED_WIRELESS;
+        int required = (plugged & BATTERY_PLUGGED_ANY) != 0 ?
+                context.getResources().getInteger(R.integer.battery_ok_percentage_charging) :
+                context.getResources().getInteger(R.integer.battery_ok_percentage_discharging);
+        return percent >= required;
+    }
+
+
+    public static boolean isBusy(UpdaterController controller) {
+        return controller.hasNoActiveDownloads() && !controller.isVerifyingUpdate()
+                && controller.isNotInstallingUpdate();
+    }
+
 }

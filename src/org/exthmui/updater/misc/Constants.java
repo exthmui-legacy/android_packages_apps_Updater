@@ -46,7 +46,8 @@ public final class Constants {
     public static final String PROP_NEXT_DEVICE = "ro.updater.next_device";
     public static final String PROP_RELEASE_TYPE = "ro.exthm.releasetype";
     public static final String PROP_UPDATER_ALLOW_DOWNGRADING = "exthm.updater.allow_downgrading";
-    public static final String PROP_UPDATER_URI = "exthm.updater.uri";
+    public static final String PROP_UPDATER_UPDATES_URI = "exthm.updater.updates.uri";
+    public static final String PROP_UPDATER_NOTICES_URI = "exthm.updater.notices.uri";
 
     public static final String PREF_INSTALL_OLD_TIMESTAMP = "install_old_timestamp";
     public static final String PREF_INSTALL_NEW_TIMESTAMP = "install_new_timestamp";

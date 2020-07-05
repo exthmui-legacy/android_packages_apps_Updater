@@ -26,7 +26,6 @@ import android.os.PowerManager;
 import android.os.SystemProperties;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
-
 import org.exthmui.updater.misc.BuildInfoUtils;
 import org.exthmui.updater.misc.Constants;
 import org.exthmui.updater.misc.StringGenerator;
@@ -60,7 +59,7 @@ public class UpdaterReceiver extends BroadcastReceiver {
         String buildDate = StringGenerator.getDateLocalizedUTC(context,
                 DateFormat.MEDIUM, preferences.getLong(Constants.PREF_INSTALL_NEW_TIMESTAMP, 0));
         String buildInfo = context.getString(R.string.list_build_version_date,
-                BuildInfoUtils.getBuildVersion(), buildDate).replace("{os_name}",UpdatesActivity.getContextFromUA().getResources().getString(R.string.os_name));
+                BuildInfoUtils.getBuildVersion(), buildDate).replace("{os_name}", context.getResources().getString(R.string.os_name));
 
         Intent notificationIntent = new Intent(context, UpdatesActivity.class);
         PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent,
@@ -80,6 +79,7 @@ public class UpdaterReceiver extends BroadcastReceiver {
 
         NotificationManager nm = (NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE);
+        assert nm != null;
         nm.createNotificationChannel(notificationChannel);
         nm.notify(0, builder.build());
     }
@@ -88,6 +88,7 @@ public class UpdaterReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (ACTION_INSTALL_REBOOT.equals(intent.getAction())) {
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            assert pm != null;
             pm.reboot(null);
         } else if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);

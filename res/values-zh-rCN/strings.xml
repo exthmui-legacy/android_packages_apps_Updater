@@ -51,7 +51,7 @@
     <string name="setting_user_agent">UA设置</string>
     -->
     <string name="setting_update_settings">更新设置</string>
-    <string name="setting_update_server_url">更新服务器URL</string>
+    <string name="setting_updates_server_url">更新服务器URL</string>
     <string name="setting_auto_delete_updates">安装完毕后删除更新</string>
     <string name="setting_clean_cache_after_update">安装完毕后清除缓存</string>
     <string name="setting_clean_cache_after_update_summary">安装完毕后清除Dalvik/ART缓存</string>
@@ -102,8 +102,8 @@
     <string name="snack_download_verification_failed">验证更新失败。</string>
     <string name="snack_download_verified">下载完毕。</string>
     <string name="snack_update_not_installable">在当前的版本上无法安装更新。</string>
-    <string name="header_android_version">Android <xliff:g id="version" example="7.1.2">%1$s</xliff:g></string>
-    <string name="header_last_updates_check">最后检查： <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
+    <string name="main_android_version">Android <xliff:g id="version" example="7.1.2">%1$s</xliff:g></string>
+    <string name="main_last_updates_check">最后检查： <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
     <string name="list_build_version">{os_name} <xliff:g id="version" example="14.1">%1$s</xliff:g></string>
     <string name="list_build_version_date">{os_name} <xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
     <string name="list_download_progress_new"><xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g> 的 <xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g> • <xliff:g id="percentage" example="56">%3$s</xliff:g></string>
