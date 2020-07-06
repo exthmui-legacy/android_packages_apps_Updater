@@ -15,6 +15,8 @@
  */
 package org.exthmui.updater;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.*;
 import android.icu.text.DateFormat;
 import android.os.Build;
@@ -28,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -35,8 +38,10 @@ import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
 import org.exthmui.updater.controller.UpdaterController;
 import org.exthmui.updater.controller.UpdaterService;
 import org.exthmui.updater.download.DownloadClient;
@@ -48,6 +53,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.*;
+
+import static org.exthmui.updater.misc.Utils.isNetworkAvailable;
 
 public class MainActivity extends BaseActivity {
 
@@ -61,9 +68,9 @@ public class MainActivity extends BaseActivity {
     private Button mShowChangelog;
     private Button mRefreshButton;
     private TextView mBuildDate;
-    private TextView mBuildVersion;
     private TextView mBuildSize;
-    private TextView mChangelog;
+    private TextView textLastCheck;
+    private TextView headerTitle;
     private ProgressBar mProgressBar;
     private TextView mProgressText;
     private View mRefreshView;
@@ -94,8 +101,10 @@ public class MainActivity extends BaseActivity {
 
     private UpdaterController getUpdaterController() {
         if (mUpdaterController == null) {
-            if (mUpdaterService != null) mUpdaterController = mUpdaterService.getUpdaterController();
-            if (mUpdaterController == null) mUpdaterController = UpdaterController.getInstanceReceiver(this);
+            if (mUpdaterService != null)
+                mUpdaterController = mUpdaterService.getUpdaterController();
+            if (mUpdaterController == null)
+                mUpdaterController = UpdaterController.getInstanceReceiver(this);
         }
         return mUpdaterController;
     }
@@ -155,6 +164,12 @@ public class MainActivity extends BaseActivity {
             case R.id.menu_all_updates: {
                 Intent intent = new Intent(this, UpdatesActivity.class);
                 startActivity(intent);
+                return true;
+            }
+            case R.id.menu_notices: {
+                Intent intent = new Intent(this, NoticesActivity.class);
+                startActivity(intent);
+                return true;
             }
         }
         return super.onOptionsItemSelected(item);
@@ -176,10 +191,7 @@ public class MainActivity extends BaseActivity {
         mRefreshButton = findViewById(R.id.main_check_for_updates);
 
         mBuildDate = findViewById(R.id.main_build_date);
-        mBuildVersion = findViewById(R.id.main_build_version);
         mBuildSize = findViewById(R.id.main_build_size);
-
-        mChangelog = findViewById(R.id.main_changelog);
 
         mProgressBar = findViewById(R.id.main_progress_bar);
         mProgressText = findViewById(R.id.main_progress_text);
@@ -211,7 +223,7 @@ public class MainActivity extends BaseActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        TextView headerTitle = findViewById(R.id.main_title);
+        headerTitle = findViewById(R.id.main_title);
         headerTitle.setText(getString(R.string.main_title_text,
                 BuildInfoUtils.getBuildVersion()).replace("{os_name}", getString(R.string.os_name)));
 
@@ -226,28 +238,57 @@ public class MainActivity extends BaseActivity {
                 DateFormat.LONG, BuildInfoUtils.getBuildDateTimestamp()));
 
         mRefreshView = findViewById(R.id.main_refreshing);
-
         mRefreshButton.setOnClickListener(v -> downloadLists(true));
     }
 
-    private void refreshView(boolean foundNewUpdate) {
-        if (foundNewUpdate) {
-            mNoNewUpdatesView.setVisibility(View.GONE);
-            mAction.setVisibility(View.VISIBLE);
-            mBuildVersion.setVisibility(View.VISIBLE);
-            mBuildDate.setVisibility(View.VISIBLE);
-            mChangelog.setVisibility(View.VISIBLE);
-            mShowChangelog.setVisibility(View.VISIBLE);
+    private void setViewAnim(View resId, float alpha, int duration) {
+        resId.animate()
+                .alpha(alpha)
+                .setDuration(duration)
+                .setListener(null)
+                .start();
+    }
+
+    private void setGoneAnim(View resId) {
+        setViewAnim(resId, 0.0f, 500);
+    }
+
+    private void setVisibleAnim(View resId) {
+        setViewAnim(resId, 1.0f, 500);
+    }
+
+    private void refreshView(boolean foundNewUpdate, boolean network) {
+        if (network) {
+            if (foundNewUpdate) {
+                setGoneAnim(textLastCheck);
+                setGoneAnim(mRefreshButton);
+                mNoNewUpdatesView.setText(R.string.new_updates_found_title);
+                mNoNewUpdatesView.setTextColor(getColor(R.color.theme_accent));
+                setVisibleAnim(mAction);
+                setVisibleAnim(mBuildDate);
+                setVisibleAnim(mShowChangelog);
+                setGoneAnim(mRefreshView);
+            } else {
+                mNoNewUpdatesView.setText(R.string.main_no_updates);
+                mAction.setVisibility(View.GONE);
+                mBuildDate.setVisibility(View.GONE);
+                mShowChangelog.setVisibility(View.GONE);
+                setGoneAnim(mBuildSize);
+                setGoneAnim(mProgressText);
+                setGoneAnim(mProgressBar);
+                setGoneAnim(mRefreshView);
+            }
         } else {
-            mNoNewUpdatesView.setVisibility(View.VISIBLE);
-            mAction.setVisibility(View.GONE);
-            mBuildVersion.setVisibility(View.GONE);
-            mBuildDate.setVisibility(View.GONE);
-            mChangelog.setVisibility(View.GONE);
-            mShowChangelog.setVisibility(View.GONE);
-            mBuildSize.setVisibility(View.GONE);
-            mProgressText.setVisibility(View.GONE);
-            mProgressBar.setVisibility(View.GONE);
+            mNoNewUpdatesView.setText(R.string.network_not_available);
+            setGoneAnim(mAction);
+            setGoneAnim(mBuildDate);
+            setGoneAnim(mShowChangelog);
+            setGoneAnim(mBuildSize);
+            setGoneAnim(mProgressText);
+            setGoneAnim(mProgressBar);
+            setGoneAnim(mRefreshButton);
+            setGoneAnim(textLastCheck);
+            setGoneAnim(mRefreshView);
         }
     }
 
@@ -255,11 +296,11 @@ public class MainActivity extends BaseActivity {
         // TODO: use selected update & No update detected
         if (update == null) {
             // No updates detected
-            refreshView(false);
+            refreshView(false, isNetworkAvailable(this));
             return;
         }
 
-        refreshView(true);
+        refreshView(true, isNetworkAvailable(this));
         boolean activeLayout;
         switch (update.getPersistentStatus()) {
             case UpdateStatus.Persistent.UNKNOWN:
@@ -275,22 +316,18 @@ public class MainActivity extends BaseActivity {
                 throw new RuntimeException("Unknown update status");
         }
 
-        String buildDate = StringGenerator.getDateLocalizedUTC(this,
+        String buildDate = getString(R.string.build_version_date) + StringGenerator.getDateLocalizedUTC(this,
                 java.text.DateFormat.LONG, update.getTimestamp());
         String buildVersion = update.getVersionName().replace("{os_name}", getResources().getString(R.string.os_name));
         mBuildDate.setText(buildDate);
-        mBuildVersion.setText(buildVersion);
-        mBuildVersion.setCompoundDrawables(null, null, null, null);
-        mChangelog.setText(update.getChangeLog());
+        headerTitle.setText(buildVersion);
+        headerTitle.setCompoundDrawables(null, null, null, null);
 
         mShowChangelog.setOnClickListener(v -> {
-            int changelogMaxLines;
-            if (mChangelog.getMaxLines() <= 3) {
-                changelogMaxLines = 10000;
-            } else {
-                changelogMaxLines = 3;
-            }
-            mChangelog.setMaxLines(changelogMaxLines);
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.changelogs)
+                    .setMessage(update.getChangeLog())
+                    .show();
         });
         if (activeLayout) {
             handleActiveStatus(update);
@@ -546,7 +583,7 @@ public class MainActivity extends BaseActivity {
         String lastCheckString = getString(R.string.main_last_updates_check,
                 StringGenerator.getDateLocalized(this, DateFormat.LONG, lastCheck),
                 StringGenerator.getTimeLocalized(this, lastCheck));
-        TextView textLastCheck = findViewById(R.id.main_last_check);
+        textLastCheck = findViewById(R.id.main_last_check);
         textLastCheck.setText(lastCheckString);
     }
 
@@ -571,21 +608,24 @@ public class MainActivity extends BaseActivity {
     }
 
     private void refreshAnimationStart() {
-        mRefreshView.setVisibility(View.VISIBLE);
-        mAction.setVisibility(View.GONE);
-        mBuildVersion.setVisibility(View.GONE);
-        mBuildDate.setVisibility(View.GONE);
-        mChangelog.setVisibility(View.GONE);
-        mShowChangelog.setVisibility(View.GONE);
-        mBuildSize.setVisibility(View.GONE);
-        mProgressText.setVisibility(View.GONE);
-        mProgressBar.setVisibility(View.GONE);
-        mRefreshButton.setVisibility(View.GONE);
+        setGoneAnim(mAction);
+        setGoneAnim(mNoNewUpdatesView);
+        setGoneAnim(mBuildDate);
+        setGoneAnim(mShowChangelog);
+        setGoneAnim(mBuildSize);
+        setGoneAnim(mProgressText);
+        setGoneAnim(mProgressBar);
+        setGoneAnim(mRefreshButton);
+        setVisibleAnim(mRefreshView);
+        textLastCheck.setText(R.string.checking_updates);
     }
 
     private void refreshAnimationStop() {
-        mRefreshView.setVisibility(View.GONE);
-        mRefreshButton.setVisibility(View.VISIBLE);
+        setVisibleAnim(mNoNewUpdatesView);
+        setVisibleAnim(headerTitle);
+        setGoneAnim(mRefreshView);
+        setVisibleAnim(mRefreshButton);
+        updateLastCheckedString();
     }
 
     private void showPreferencesDialog() {
@@ -642,7 +682,7 @@ public class MainActivity extends BaseActivity {
         if (controller.isDownloading(downloadId)) {
             String downloaded = StringGenerator.bytesToMegabytes(this,
                     update.getFile().length());
-            String total = Formatter.formatShortFileSize(this, update.getFileSize());
+            String total = Formatter.formatFileSize(this, update.getFileSize());
             String percentage = NumberFormat.getPercentInstance().format(
                     update.getProgress() / 100.f);
             long eta = update.getEta();
@@ -675,7 +715,7 @@ public class MainActivity extends BaseActivity {
             UpdateActionsUtils.setButtonAction(this, getUpdaterController(), mAction, UpdateActionsUtils.Action.RESUME, downloadId, Utils.isBusy(controller));
             String downloaded = StringGenerator.bytesToMegabytes(this,
                     update.getFile().length());
-            String total = Formatter.formatShortFileSize(this, update.getFileSize());
+            String total = Formatter.formatFileSize(this, update.getFileSize());
             String percentage = NumberFormat.getPercentInstance().format(
                     update.getProgress() / 100.f);
             mProgressText.setText(this.getString(R.string.list_download_progress_new,
@@ -702,7 +742,7 @@ public class MainActivity extends BaseActivity {
         } else {
             UpdateActionsUtils.setButtonAction(this, getUpdaterController(), mAction, UpdateActionsUtils.Action.DOWNLOAD, downloadId, Utils.isBusy(getUpdaterController()));
         }
-        String fileSize = Formatter.formatShortFileSize(this, update.getFileSize());
+        String fileSize = getString(R.string.build_size_text) + Formatter.formatFileSize(this, update.getFileSize());
         mBuildSize.setText(fileSize);
 
         mProgressBar.setVisibility(View.INVISIBLE);

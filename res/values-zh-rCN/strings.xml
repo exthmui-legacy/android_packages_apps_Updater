@@ -68,7 +68,7 @@
     <string name="download_starting_notification">正在开始下载</string>
     <string name="update_failed_notification">更新失败</string>
     <string name="installation_suspended_notification">安装已挂起</string>
-    <string name="new_updates_found_title">新的更新</string>
+    <string name="new_updates_found_title">发现新版本</string>
     <string name="text_download_speed">%1$s, %2$s/秒</string>
     <string name="pause_button">暂停</string>
     <string name="resume_button">继续</string>
@@ -103,13 +103,13 @@
     <string name="snack_download_verified">下载完毕。</string>
     <string name="snack_update_not_installable">在当前的版本上无法安装更新。</string>
     <string name="main_android_version">Android <xliff:g id="version" example="7.1.2">%1$s</xliff:g></string>
-    <string name="main_last_updates_check">最后检查： <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
+    <string name="main_last_updates_check">最后检查： <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> <xliff:g id="time" example="01:23">%2$s</xliff:g></string>
     <string name="list_build_version">{os_name} <xliff:g id="version" example="14.1">%1$s</xliff:g></string>
     <string name="list_build_version_date">{os_name} <xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
     <string name="list_download_progress_new"><xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g> 的 <xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g> • <xliff:g id="percentage" example="56">%3$s</xliff:g></string>
     <string name="list_download_progress_eta_new"><xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g> 的 <xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g> (<xliff:g id="eta" example="3 minutes left">%3$s</xliff:g>) • <xliff:g id="percentage" example="56">%4$s</xliff:g></string>
     <string name="list_verifying_update">正在验证更新</string>
-    <string name="list_no_updates">未找到更新。要手动检查更新，请使用刷新按钮。</string>
+    <string name="list_no_updates">未找到合适的历史更新</string>
     <string name="action_download">下载</string>
     <string name="action_pause">暂停</string>
     <string name="action_resume">继续</string>
@@ -159,4 +159,13 @@
     <string name="title_notices">公告</string>
     <string name="title_updates">更新</string>
     <string name="snack_notices_check_failed">公告获取失败。 请您检查您的网络连接与更新服务器配置并稍后重试。</string>
+    <string name="main_no_updates">已是最新版本</string>
+    <string name="setting_notices_server_url">公告服务器URL</string>
+    <string name="check_for_updates">检查更新</string>
+    <string name="build_version_date">版本日期：</string>
+    <string name="checking_updates">检查更新中...</string>
+    <string name="build_size_text">大小：</string>
+    <string name="network_not_available">网络不可用</string>
+    <string name="menu_all_updates">历史版本</string>
+    <string name="menu_all_notices">公告</string>
 </resources>

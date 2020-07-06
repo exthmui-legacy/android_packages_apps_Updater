@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".NoticesActivity"
-        android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".NoticesActivity">
 
 
     <TextView
-            android:id="@+id/no_notices_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="46dp"
-            android:text="@string/list_no_updates"
-            android:textColor="?android:textColorSecondary"/>
+        android:id="@+id/no_notices_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="46dp"
+        android:layout_centerInParent="true"
+        android:text="@string/list_no_notices"
+        android:textColor="?android:textColorSecondary" />
 
     <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/notice_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:paddingBottom="5dp"
-            android:scrollbars="none"/>
+        android:id="@+id/notice_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:scrollbars="none" />
 
-</LinearLayout>
+</RelativeLayout>

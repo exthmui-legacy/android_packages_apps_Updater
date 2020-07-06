@@ -95,6 +95,8 @@ public class NoticesActivity extends BaseActivity {
 
         instance = getApplication();
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         RecyclerView noticeView = findViewById(R.id.notice_view);
         mNoticesListAdapter = new NoticesListAdapter(this, false);
         noticeView.setAdapter(mNoticesListAdapter);
@@ -160,7 +162,6 @@ public class NoticesActivity extends BaseActivity {
             showSnackbar(R.string.snack_notices_check_failed, Snackbar.LENGTH_LONG);
         }
     }
-
 
     private void downloadNoticesList() {
         final File jsonFile = Utils.getCachedNoticeList(this);

@@ -72,7 +72,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
             canDelete = true;
             String downloaded = StringGenerator.bytesToMegabytes(mActivity,
                     update.getFile().length());
-            String total = Formatter.formatShortFileSize(mActivity, update.getFileSize());
+            String total = Formatter.formatFileSize(mActivity, update.getFileSize());
             String percentage = NumberFormat.getPercentInstance().format(
                     update.getProgress() / 100.f);
             long eta = update.getEta();
@@ -106,7 +106,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
             UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.RESUME, downloadId, Utils.isBusy(mUpdaterController));
             String downloaded = StringGenerator.bytesToMegabytes(mActivity,
                     update.getFile().length());
-            String total = Formatter.formatShortFileSize(mActivity, update.getFileSize());
+            String total = Formatter.formatFileSize(mActivity, update.getFileSize());
             String percentage = NumberFormat.getPercentInstance().format(
                     update.getProgress() / 100.f);
             viewHolder.mProgressText.setText(mActivity.getString(R.string.list_download_progress_new,
@@ -137,13 +137,13 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
         } else if (!Utils.canInstall(update)) {
             viewHolder.itemView.setOnLongClickListener(
                     getLongClickListener(update, false, viewHolder.mBuildDate));
-            UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.INFO, downloadId, Utils.isBusy(mUpdaterController));
+            UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.INFO_LIST, downloadId, Utils.isBusy(mUpdaterController));
         } else {
             viewHolder.itemView.setOnLongClickListener(
                     getLongClickListener(update, false, viewHolder.mBuildDate));
             UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.DOWNLOAD, downloadId, Utils.isBusy(mUpdaterController));
         }
-        String fileSize = Formatter.formatShortFileSize(mActivity, update.getFileSize());
+        String fileSize = Formatter.formatFileSize(mActivity, update.getFileSize());
         viewHolder.mBuildSize.setText(fileSize);
 
         viewHolder.mProgressBar.setVisibility(View.INVISIBLE);

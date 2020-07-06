@@ -93,6 +93,12 @@ public class UpdateActionsUtils {
             }
             break;
             case INFO: {
+                button.setImageResource(R.drawable.ic_info_white);
+                button.setEnabled(enabled);
+                clickListener = enabled ? view -> showInfoDialog(activity) : null;
+            }
+            break;
+            case INFO_LIST: {
                 button.setImageResource(R.drawable.ic_info);
                 button.setEnabled(enabled);
                 clickListener = enabled ? view -> showInfoDialog(activity) : null;
@@ -305,6 +311,7 @@ public class UpdateActionsUtils {
         RESUME,
         INSTALL,
         INFO,
+        INFO_LIST,
         DELETE,
         CANCEL_INSTALLATION,
         REBOOT,

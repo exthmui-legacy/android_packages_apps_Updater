@@ -40,22 +40,20 @@
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <!-- TODO: fix hard coded text (label)-->
         <activity
                 android:name=".NoticesActivity"
                 android:excludeFromRecents="true"
-                android:label="All Notices"
+                android:label="@string/menu_all_notices"
                 android:launchMode="singleTop"
                 android:theme="@style/AppTheme">
             <intent-filter android:priority="1">
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <!-- TODO: fix hard coded text (label)-->
         <activity
                 android:name=".UpdatesActivity"
                 android:excludeFromRecents="true"
-                android:label="All Updates"
+                android:label="@string/menu_all_updates"
                 android:launchMode="singleTop"
                 android:theme="@style/AppTheme">
             <intent-filter android:priority="1">

@@ -24,6 +24,8 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import androidx.cardview.widget.CardView;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
@@ -109,6 +111,8 @@ public class UpdatesActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_updates);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         mUpdatesListAdapter = new UpdatesListAdapter(this);
@@ -197,10 +201,10 @@ public class UpdatesActivity extends BaseActivity {
         List<UpdateInfo> sortedUpdates = controller.getUpdates();
         if (sortedUpdates.isEmpty()) {
             findViewById(R.id.no_new_updates_view).setVisibility(View.VISIBLE);
-            findViewById(R.id.update_container).setVisibility(View.GONE);
+            findViewById(R.id.recycler_view).setVisibility(View.GONE);
         } else {
             findViewById(R.id.no_new_updates_view).setVisibility(View.GONE);
-            findViewById(R.id.update_container).setVisibility(View.VISIBLE);
+            findViewById(R.id.recycler_view).setVisibility(View.VISIBLE);
             // Sort:from small to big
             Log.d(TAG, "Sorting updates(list)(small > big)." );
             sortedUpdates.sort(Comparator.comparingLong(UpdateBaseInfo::getTimestamp));
@@ -327,6 +331,6 @@ public class UpdatesActivity extends BaseActivity {
 
     @Override
     public void showSnackbar(int stringId, int duration) {
-        Snackbar.make(findViewById(R.id.main_container), stringId, duration).show();
+        Snackbar.make(findViewById(R.id.update_container), stringId, duration).show();
     }
 }

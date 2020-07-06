@@ -105,7 +105,7 @@
 
     <string name="menu_refresh">Refresh</string>
     <string name="menu_preferences">Preferences</string>
-    <string name="menu_all_updates">All Updates</string>
+    <string name="menu_all_updates">Historical updates</string>
     <string name="menu_auto_updates_check">Auto updates check</string>
     <string name="menu_auto_updates_check_interval_daily">Once a day</string>
     <string name="menu_auto_updates_check_interval_weekly">Once a week</string>
@@ -141,7 +141,7 @@
         <xliff:g id="version" example="7.1.2">%1$s</xliff:g>
     </string>
     <string name="main_last_updates_check">Last checked: <xliff:g id="date" example="1 January 1970">%1$s
-    </xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)
+    </xliff:g> <xliff:g id="time" example="01:23">%2$s</xliff:g>
     </string>
 
     <string name="list_build_version_date">{os_name} <xliff:g id="version" example="14.1">%1$s</xliff:g> -
@@ -160,10 +160,8 @@
         <xliff:g id="percentage" example="56">%4$s</xliff:g>
     </string>
     <string name="list_verifying_update">Verifying update</string>
-    <string name="list_no_updates">No new updates found.
-    </string>
-    <string name="list_no_notices">No notices found.
-    </string>
+    <string name="list_no_updates">"No appropriate historical updates found.     "</string>
+    <string name="list_no_notices">"No notices found.     "</string>
 
     <string name="action_download">Download</string>
     <string name="action_pause">Pause</string>
@@ -258,8 +256,13 @@
     <string name="icon_of_show_changelog_button" translatable="false">Icon of show Changelog button</string>
     <string name="list_build_version">{os_name} <xliff:g example="10.0" id="version">%1$s</xliff:g></string>
     <string name="setting_update_type">Update type</string>
-    <string name="exthmui_logo">exTHmUI Logo</string>
+    <string name="exthmui_logo" translatable="false">exTHmUI Logo</string>
     <string name="check_for_updates">Check for updates</string>
     <string name="more_information">More information</string>
-    <string name="importance_icon">Importance icon</string>
+    <string name="importance_icon" translatable="false">Importance icon</string>
+    <string name="build_version_date">"Version date: "</string>
+    <string name="checking_updates">Checking updates...</string>
+    <string name="build_size_text">Size:</string>
+    <string name="network_not_available">The network isn\'t available</string>
+    <string name="menu_all_notices">Notices</string>
 </resources>

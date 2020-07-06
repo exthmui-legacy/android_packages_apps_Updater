@@ -27,6 +27,7 @@ import android.os.SystemProperties;
 import android.os.storage.StorageManager;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -51,6 +52,7 @@ import java.util.zip.ZipFile;
 public class Utils {
 
     private static final String TAG = "Utils";
+    private List<UpdateInfo> updates;
 
     private Utils() {
     }
@@ -107,23 +109,23 @@ public class Utils {
 
     public static boolean isCompatible(UpdateBaseInfo update) {
         // TODO: Remove this before commit
-//        if (update.getVersion().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION)) < 0) {
-//            Log.d(TAG, update.getName() + " is older than current Android version");
-//            return false;
-//        }
-//        if (!SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) &&
-//                update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
-//            Log.d(TAG, update.getName() + " is older than/equal to the current build");
-//            return false;
-//        }
-//        if (!update.getType().equalsIgnoreCase(SystemProperties.get(Constants.PROP_RELEASE_TYPE))) {
-//            Log.d(TAG, update.getName() + " has type " + update.getType());
-//            return false;
-//        }
-//        if (!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))) {
-//            Log.d(TAG, update.getName() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
-//            return false;
-//        }
+        if (update.getVersion().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION)) < 0) {
+            Log.d(TAG, update.getName() + " is older than current Android version");
+            return false;
+        }
+        if (!SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) &&
+                update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
+            Log.d(TAG, update.getName() + " is older than/equal to the current build");
+            return false;
+        }
+        if (!update.getType().equalsIgnoreCase(SystemProperties.get(Constants.PROP_RELEASE_TYPE))) {
+            Log.d(TAG, update.getName() + " has type " + update.getType());
+            return false;
+        }
+        if (!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))) {
+            Log.d(TAG, update.getName() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
+            return false;
+        }
         return true;
     }
 
@@ -158,6 +160,7 @@ public class Utils {
                     updates.add(update);
                 } else {
                     Log.d(TAG, "Ignoring incompatible update " + update.getName());
+                    updates.remove(update);
                 }
             } catch (JSONException e) {
                 Log.e(TAG, "Could not parse update object, index=" + i, e);
@@ -191,9 +194,7 @@ public class Utils {
             }
         }
         /*
-
          * Do not put any same id notices in the json file!!!!!!!!
-
          */
         //对id进行排序 大>小
         Log.d(TAG, "Sorting updates(list).");
@@ -254,7 +255,7 @@ public class Utils {
         Network network = cm.getActiveNetwork();
         NetworkCapabilities nc = cm.getNetworkCapabilities(network);
         if (nc == null) return false;
-        return !(nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) |
+        return (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) |
                 nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) |
                 nc.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) |
                 nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET));
