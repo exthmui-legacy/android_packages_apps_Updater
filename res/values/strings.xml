@@ -258,7 +258,7 @@
     <string name="setting_update_type">Update type</string>
     <string name="exthmui_logo" translatable="false">exTHmUI Logo</string>
     <string name="check_for_updates">Check for updates</string>
-    <string name="more_information">More information</string>
+    <string name="more_information">Changelogs</string>
     <string name="importance_icon" translatable="false">Importance icon</string>
     <string name="build_version_date">"Version date: "</string>
     <string name="checking_updates">Checking updates...</string>

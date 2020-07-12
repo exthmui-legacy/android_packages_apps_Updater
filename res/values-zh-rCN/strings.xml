@@ -168,4 +168,5 @@
     <string name="network_not_available">网络不可用</string>
     <string name="menu_all_updates">历史版本</string>
     <string name="menu_all_notices">公告</string>
+    <string name="more_information">更新日志</string>
 </resources>

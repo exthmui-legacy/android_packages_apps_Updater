@@ -10,7 +10,8 @@
     android:nextFocusRight="@+id/update_action"
     android:layout_margin="5dp"
     app:cardCornerRadius="8dp"
-    app:contentPadding="3dp">
+    app:contentPadding="3dp"
+    >
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
