@@ -62,7 +62,7 @@ public class MainActivity extends BaseActivity {
     private UpdaterService mUpdaterService;
     private BroadcastReceiver mBroadcastReceiver;
 
-    private NoticesListAdapter mNoticesListAdapter;
+//    private NoticesListAdapter mNoticesListAdapter;
 
     private FloatingActionButton mAction;
     private Button mShowChangelog;
@@ -74,6 +74,7 @@ public class MainActivity extends BaseActivity {
     private ProgressBar mProgressBar;
     private TextView mProgressText;
     private View mRefreshView;
+    private View mDetailsView;
     private TextView mNoNewUpdatesView;
 
     private UpdaterController mUpdaterController;
@@ -86,16 +87,16 @@ public class MainActivity extends BaseActivity {
                                        IBinder service) {
             UpdaterService.LocalBinder binder = (UpdaterService.LocalBinder) service;
             mUpdaterService = binder.getService();
-            mNoticesListAdapter.setUpdaterController(getUpdaterController());
+//            mNoticesListAdapter.setUpdaterController(getUpdaterController());
             getLists();
             refreshUpdate(getUpdaterController().getLatestUpdate());
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            mNoticesListAdapter.setUpdaterController(null);
+            //mNoticesListAdapter.setUpdaterController(null);
             mUpdaterService = null;
-            mNoticesListAdapter.notifyDataSetChanged();
+            //mNoticesListAdapter.notifyDataSetChanged();
         }
     };
 
@@ -137,6 +138,7 @@ public class MainActivity extends BaseActivity {
         intentFilter.addAction(UpdaterController.ACTION_INSTALL_PROGRESS);
         intentFilter.addAction(UpdaterController.ACTION_UPDATE_REMOVED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, intentFilter);
+
     }
 
     @Override
@@ -145,6 +147,7 @@ public class MainActivity extends BaseActivity {
         if (mUpdaterService != null) {
             unbindService(mConnection);
         }
+        setVisibleAnim(mRefreshView);
         super.onStop();
     }
 
@@ -193,30 +196,32 @@ public class MainActivity extends BaseActivity {
         mBuildDate = findViewById(R.id.main_build_date);
         mBuildSize = findViewById(R.id.main_build_size);
 
+        mDetailsView = findViewById(R.id.updates_details);
+
         mProgressBar = findViewById(R.id.main_progress_bar);
         mProgressText = findViewById(R.id.main_progress_text);
 
         mNoNewUpdatesView = findViewById(R.id.main_no_new_updates_view);
 
-        RecyclerView noticeView = findViewById(R.id.main_notice_view);
-        mNoticesListAdapter = new NoticesListAdapter(this, true);
-        noticeView.setAdapter(mNoticesListAdapter);
-        RecyclerView.LayoutManager noticeLayoutManager = new LinearLayoutManager(this);
-        noticeView.setLayoutManager(noticeLayoutManager);
-        RecyclerView.ItemAnimator noticeViewItemAnimator = noticeView.getItemAnimator();
-        if (noticeViewItemAnimator instanceof SimpleItemAnimator) {
-            ((SimpleItemAnimator) noticeViewItemAnimator).setSupportsChangeAnimations(false);
-        }
-
-        mBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
-                    String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
-                    handleDownloadStatusChange(downloadId);
-                }
-            }
-        };
+//        RecyclerView noticeView = findViewById(R.id.main_notice_view);
+//        mNoticesListAdapter = new NoticesListAdapter(this, true);
+//        noticeView.setAdapter(mNoticesListAdapter);
+//        RecyclerView.LayoutManager noticeLayoutManager = new LinearLayoutManager(this);
+//        noticeView.setLayoutManager(noticeLayoutManager);
+//        RecyclerView.ItemAnimator noticeViewItemAnimator = noticeView.getItemAnimator();
+//        if (noticeViewItemAnimator instanceof SimpleItemAnimator) {
+//            ((SimpleItemAnimator) noticeViewItemAnimator).setSupportsChangeAnimations(false);
+//        }
+//
+//        mBroadcastReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
+//                    String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
+//                    handleDownloadStatusChange(downloadId);
+//                }
+//            }
+//        };
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -238,37 +243,56 @@ public class MainActivity extends BaseActivity {
                 DateFormat.LONG, BuildInfoUtils.getBuildDateTimestamp()));
 
         mRefreshView = findViewById(R.id.main_refreshing);
-        mRefreshButton.setOnClickListener(v -> downloadLists(true));
+        mRefreshButton.setOnClickListener(v ->
+                downloadLists(true));
+
     }
 
-    private void setViewAnim(View resId, float alpha, int duration) {
+    private void setViewAnim(View resId, float alpha, int duration, int visibility) {
         resId.animate()
                 .alpha(alpha)
                 .setDuration(duration)
-                .setListener(null)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        resId.setVisibility(visibility);
+                    }
+
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        super.onAnimationStart(animation);
+                    }
+                })
                 .start();
     }
 
     private void setGoneAnim(View resId) {
-        setViewAnim(resId, 0.0f, 500);
+        setViewAnim(resId, 0.0f, 500, View.GONE);
     }
 
     private void setVisibleAnim(View resId) {
-        setViewAnim(resId, 1.0f, 500);
+        setViewAnim(resId, 1.0f, 500, View.VISIBLE);
     }
 
     private void refreshView(boolean foundNewUpdate, boolean network) {
+        setVisibleAnim(mDetailsView);
         if (network) {
             if (foundNewUpdate) {
+                setGoneAnim(mRefreshView);
                 setGoneAnim(textLastCheck);
                 setGoneAnim(mRefreshButton);
                 mNoNewUpdatesView.setText(R.string.new_updates_found_title);
                 mNoNewUpdatesView.setTextColor(getColor(R.color.theme_accent));
-                setVisibleAnim(mAction);
-                setVisibleAnim(mBuildDate);
-                setVisibleAnim(mShowChangelog);
+                mAction.setVisibility(View.VISIBLE);
+                mBuildDate.setVisibility(View.VISIBLE);
+                setVisibleAnim(mBuildSize);
+                mShowChangelog.setVisibility(View.VISIBLE);
+            }else{
                 setGoneAnim(mRefreshView);
-            } else {
+                setVisibleAnim(textLastCheck);
+                setVisibleAnim(mRefreshButton);
+                setVisibleAnim(mBuildSize);
                 mNoNewUpdatesView.setText(R.string.main_no_updates);
                 mAction.setVisibility(View.GONE);
                 mBuildDate.setVisibility(View.GONE);
@@ -276,7 +300,6 @@ public class MainActivity extends BaseActivity {
                 setGoneAnim(mBuildSize);
                 setGoneAnim(mProgressText);
                 setGoneAnim(mProgressBar);
-                setGoneAnim(mRefreshView);
             }
         } else {
             mNoNewUpdatesView.setText(R.string.network_not_available);
@@ -290,6 +313,7 @@ public class MainActivity extends BaseActivity {
             setGoneAnim(textLastCheck);
             setGoneAnim(mRefreshView);
         }
+
     }
 
     private void refreshUpdate(UpdateInfo update) {
@@ -386,51 +410,51 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private void loadNoticesList(File jsonFile)
-            throws IOException, JSONException {
-        Log.d(TAG, "Adding remote notices");
-        UpdaterController controller = getUpdaterController();
-        boolean newNotices = false;
-
-        List<NoticeInfo> notices = Utils.parseJsonNotice(jsonFile);
-        for (NoticeInfo notice : notices) {
-            newNotices |= controller.addNotice(notice);
-        }
-
-        List<String> noticeIds = new ArrayList<>();
-        List<NoticeInfo> sortedNotices = controller.getNotices();
-        if (sortedNotices.isEmpty()) {
-            findViewById(R.id.main_notice_card).setVisibility(View.GONE);
-        } else {
-            findViewById(R.id.main_notice_card).setVisibility(View.VISIBLE);
-            //sortedNotices.sort((u1, u2) -> String.compare(u2.getId(), u1.getId()));//It's already sorted in Utils.parseJsonUpdate(...)
-            for (NoticeInfo notice : sortedNotices) {
-                noticeIds.add(notice.getId());
-            }
-            mNoticesListAdapter.setData(noticeIds);
-            mNoticesListAdapter.notifyDataSetChanged();
-        }
-        refreshUpdate(getUpdaterController().getLatestUpdate());
-    }
+//    private void loadNoticesList(File jsonFile)
+//            throws IOException, JSONException {
+//        Log.d(TAG, "Adding remote notices");
+//        UpdaterController controller = getUpdaterController();
+//        boolean newNotices = false;
+//
+//        List<NoticeInfo> notices = Utils.parseJsonNotice(jsonFile);
+//        for (NoticeInfo notice : notices) {
+//            newNotices |= controller.addNotice(notice);
+//        }
+//
+//        List<String> noticeIds = new ArrayList<>();
+//        List<NoticeInfo> sortedNotices = controller.getNotices();
+//        if (sortedNotices.isEmpty()) {
+//            findViewById(R.id.main_notice_card).setVisibility(View.GONE);
+//        } else {
+//            findViewById(R.id.main_notice_card).setVisibility(View.VISIBLE);
+//            //sortedNotices.sort((u1, u2) -> String.compare(u2.getId(), u1.getId()));//It's already sorted in Utils.parseJsonUpdate(...)
+//            for (NoticeInfo notice : sortedNotices) {
+//                noticeIds.add(notice.getId());
+//            }
+//            mNoticesListAdapter.setData(noticeIds);
+//            mNoticesListAdapter.notifyDataSetChanged();
+//        }
+//        refreshUpdate(getUpdaterController().getLatestUpdate());
+//    }
 
     private void getLists() {
-        getNoticesList();
+//        getNoticesList();
         getUpdatesList();
     }
 
-    private void getNoticesList() {
-        File cachedNoticeList = Utils.getCachedNoticeList(this);
-        if (cachedNoticeList.exists()) {
-            try {
-                loadNoticesList(cachedNoticeList);
-                Log.d(TAG, "Cached notice list parsed");
-            } catch (IOException | JSONException e) {
-                Log.e(TAG, "Error while parsing json list", e);
-            }
-        } else {
-            downloadNoticesList(true);
-        }
-    }
+//    private void getNoticesList() {
+//        File cachedNoticeList = Utils.getCachedNoticeList(this);
+//        if (cachedNoticeList.exists()) {
+//            try {
+//                loadNoticesList(cachedNoticeList);
+//                Log.d(TAG, "Cached notice list parsed");
+//            } catch (IOException | JSONException e) {
+//                Log.e(TAG, "Error while parsing json list", e);
+//            }
+//        } else {
+//            downloadNoticesList(true);
+//        }
+//    }
 
     private void getUpdatesList() {
         File cachedUpdateList = Utils.getCachedUpdateList(this);
@@ -451,7 +475,7 @@ public class MainActivity extends BaseActivity {
             if (isUpdate) {
                 loadUpdatesList(jsonNew, manualRefresh);
             } else {
-                loadNoticesList(jsonNew);
+                //loadNoticesList(jsonNew);
             }
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             long millis = System.currentTimeMillis();
@@ -520,7 +544,6 @@ public class MainActivity extends BaseActivity {
             showSnackbar(R.string.snack_notices_check_failed, Snackbar.LENGTH_LONG);
             return;
         }
-
         refreshAnimationStart();
         downloadClient.start();
     }
@@ -571,7 +594,6 @@ public class MainActivity extends BaseActivity {
             showSnackbar(R.string.snack_updates_check_failed, Snackbar.LENGTH_LONG);
             return;
         }
-
         refreshAnimationStart();
         downloadClient.start();
     }
@@ -608,23 +630,23 @@ public class MainActivity extends BaseActivity {
     }
 
     private void refreshAnimationStart() {
+        setGoneAnim(mDetailsView);
         setGoneAnim(mAction);
-        setGoneAnim(mNoNewUpdatesView);
         setGoneAnim(mBuildDate);
         setGoneAnim(mShowChangelog);
         setGoneAnim(mBuildSize);
         setGoneAnim(mProgressText);
         setGoneAnim(mProgressBar);
-        setGoneAnim(mRefreshButton);
         setVisibleAnim(mRefreshView);
-        textLastCheck.setText(R.string.checking_updates);
+//        textLastCheck.setText(R.string.checking_updates);
     }
 
     private void refreshAnimationStop() {
-        setVisibleAnim(mNoNewUpdatesView);
-        setVisibleAnim(headerTitle);
+//        setVisibleAnim(headerTitle);
+        setVisibleAnim(mDetailsView);
         setGoneAnim(mRefreshView);
-        setVisibleAnim(mRefreshButton);
+//        setVisibleAnim(mRefreshButton);
+
         updateLastCheckedString();
     }
 

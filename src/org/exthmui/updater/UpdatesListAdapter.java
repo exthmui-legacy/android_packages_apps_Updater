@@ -15,6 +15,8 @@
  */
 package org.exthmui.updater;
 
+import android.app.Activity;
+import android.content.Context;
 import android.text.format.Formatter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,9 +47,9 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
 
     private List<String> mDownloadIds;
     private UpdaterController mUpdaterController;
-    private final BaseActivity mActivity;
+    private final Context mActivity;
 
-    public UpdatesListAdapter(BaseActivity activity) {
+    public UpdatesListAdapter(Context activity) {
         mActivity = activity;
     }
 
@@ -85,11 +87,11 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                 viewHolder.mProgressText.setText(mActivity.getString(
                         R.string.list_download_progress_new, downloaded, total, percentage));
             }
-            UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.PAUSE, downloadId, true);
+            UpdateActionsUtils.setButtonAction((BaseActivity) mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.PAUSE, downloadId, true);
             viewHolder.mProgressBar.setIndeterminate(update.getStatus() == UpdateStatus.STARTING);
             viewHolder.mProgressBar.setProgress(update.getProgress());
         } else if (mUpdaterController.isInstallingUpdate(downloadId)) {
-            UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.CANCEL_INSTALLATION, downloadId, true);
+            UpdateActionsUtils.setButtonAction((BaseActivity) mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.CANCEL_INSTALLATION, downloadId, true);
             boolean notAB = mUpdaterController.isNotInstallingABUpdate();
             viewHolder.mProgressText.setText(notAB ? R.string.dialog_prepare_zip_message :
                     update.getFinalizing() ?
@@ -98,12 +100,12 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
             viewHolder.mProgressBar.setIndeterminate(false);
             viewHolder.mProgressBar.setProgress(update.getInstallProgress());
         } else if (mUpdaterController.isVerifyingUpdate(downloadId)) {
-            UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.INSTALL, downloadId, false);
+            UpdateActionsUtils.setButtonAction((BaseActivity) mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.INSTALL, downloadId, false);
             viewHolder.mProgressText.setText(R.string.list_verifying_update);
             viewHolder.mProgressBar.setIndeterminate(true);
         } else {
             canDelete = true;
-            UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.RESUME, downloadId, Utils.isBusy(mUpdaterController));
+            UpdateActionsUtils.setButtonAction((BaseActivity) mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.RESUME, downloadId, Utils.isBusy(mUpdaterController));
             String downloaded = StringGenerator.bytesToMegabytes(mActivity,
                     update.getFile().length());
             String total = Formatter.formatFileSize(mActivity, update.getFileSize());
@@ -127,24 +129,24 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
         if (mUpdaterController.isWaitingForReboot(downloadId)) {
             viewHolder.itemView.setOnLongClickListener(
                     getLongClickListener(update, false, viewHolder.mBuildDate));
-            UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.REBOOT, downloadId, true);
+            UpdateActionsUtils.setButtonAction((BaseActivity) mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.REBOOT, downloadId, true);
         } else if (update.getPersistentStatus() == UpdateStatus.Persistent.VERIFIED) {
             viewHolder.itemView.setOnLongClickListener(
                     getLongClickListener(update, true, viewHolder.mBuildDate));
-            UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction,
+            UpdateActionsUtils.setButtonAction((BaseActivity) mActivity, mUpdaterController, viewHolder.mAction,
                     Utils.canInstall(update) ? UpdateActionsUtils.Action.INSTALL : UpdateActionsUtils.Action.DELETE,
                     downloadId, Utils.isBusy(mUpdaterController));
         } else if (!Utils.canInstall(update)) {
             viewHolder.itemView.setOnLongClickListener(
                     getLongClickListener(update, false, viewHolder.mBuildDate));
-            UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.INFO_LIST, downloadId, Utils.isBusy(mUpdaterController));
+            UpdateActionsUtils.setButtonAction((BaseActivity) mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.INFO_LIST, downloadId, Utils.isBusy(mUpdaterController));
         } else {
             viewHolder.itemView.setOnLongClickListener(
                     getLongClickListener(update, false, viewHolder.mBuildDate));
-            UpdateActionsUtils.setButtonAction(mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.DOWNLOAD, downloadId, Utils.isBusy(mUpdaterController));
+            UpdateActionsUtils.setButtonAction((BaseActivity) mActivity, mUpdaterController, viewHolder.mAction, UpdateActionsUtils.Action.DOWNLOAD, downloadId, Utils.isBusy(mUpdaterController));
         }
         String fileSize = Formatter.formatFileSize(mActivity, update.getFileSize());
-        viewHolder.mBuildSize.setText(fileSize);
+        viewHolder.mBuildSize.setText(mActivity.getString(R.string.build_size_text) + fileSize);
 
         viewHolder.mProgressBar.setVisibility(View.INVISIBLE);
         viewHolder.mProgressText.setVisibility(View.INVISIBLE);
@@ -187,7 +189,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
         String buildDate = StringGenerator.getDateLocalizedUTC(mActivity,
                 DateFormat.LONG, update.getTimestamp());
         String buildVersion = update.getVersionName().replace("{os_name}", mActivity.getResources().getString(R.string.os_name));
-        viewHolder.mBuildDate.setText(buildDate);
+        viewHolder.mBuildDate.setText(mActivity.getString(R.string.build_version_date) + buildDate);
         viewHolder.mBuildVersion.setText(buildVersion);
         viewHolder.mBuildVersion.setCompoundDrawables(null, null, null, null);
 
@@ -250,7 +252,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                                                           final boolean canDelete, View anchor) {
         return view -> {
             notifyItemChanged(update.getDownloadId());
-            UpdateActionsUtils.startActionMode(mActivity, mUpdaterController, update, canDelete, anchor);
+            UpdateActionsUtils.startActionMode((Activity) mActivity, mUpdaterController, update, canDelete, anchor);
             return true;
         };
     }

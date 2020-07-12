@@ -17,13 +17,16 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.preference.PreferenceManager;
+
 import com.google.android.material.snackbar.Snackbar;
+
 import org.exthmui.updater.BaseActivity;
 import org.exthmui.updater.ExportUpdateService;
 import org.exthmui.updater.R;
