@@ -89,6 +89,8 @@ public class MainActivity extends BaseActivity {
             mUpdaterService = binder.getService();
 //            mNoticesListAdapter.setUpdaterController(getUpdaterController());
             getLists();
+            mAction.setVisibility(View.GONE);
+            mDetailsView.setVisibility(View.GONE);
             refreshUpdate(getUpdaterController().getLatestUpdate());
         }
 
@@ -318,6 +320,7 @@ public class MainActivity extends BaseActivity {
 
     private void refreshUpdate(UpdateInfo update) {
         // TODO: use selected update & No update detected
+
         if (update == null) {
             // No updates detected
             refreshView(false, isNetworkAvailable(this));
@@ -562,6 +565,8 @@ public class MainActivity extends BaseActivity {
                     if (!cancelled) {
                         showSnackbar(R.string.snack_updates_check_failed, Snackbar.LENGTH_LONG);
                     }
+                    mAction.setVisibility(View.GONE);
+                    mDetailsView.setVisibility(View.GONE);
                     refreshUpdate(getUpdaterController().getLatestUpdate());
                     refreshAnimationStop();
                 });
