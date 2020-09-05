@@ -15,8 +15,8 @@
  */
 package org.exthmui.updater;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.*;
 import android.icu.text.DateFormat;
 import android.os.Build;
@@ -35,9 +35,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -90,7 +87,7 @@ public class MainActivity extends BaseActivity {
 //            mNoticesListAdapter.setUpdaterController(getUpdaterController());
             getLists();
             mAction.setVisibility(View.GONE);
-            mDetailsView.setVisibility(View.GONE);
+            //mDetailsView.setVisibility(View.GONE);
             refreshUpdate(getUpdaterController().getLatestUpdate());
         }
 
@@ -250,40 +247,31 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    private void setViewAnim(View resId, float alpha, int duration, int visibility) {
-        resId.animate()
-                .alpha(alpha)
-                .setDuration(duration)
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        resId.setVisibility(visibility);
-                    }
-
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        super.onAnimationStart(animation);
-                    }
-                })
-                .start();
+    private ObjectAnimator setViewAnim(View resId, float alphaStart, float alphaEnd, int duration) {
+        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(resId, "alpha", alphaStart, alphaEnd).setDuration(duration);
+        return objectAnimator;
     }
 
-    private void setGoneAnim(View resId) {
-        setViewAnim(resId, 0.0f, 500, View.GONE);
+    private ObjectAnimator setGoneAnim(View resId) {
+        return setViewAnim(resId, 1.0f, 0.0f, 500);
     }
 
-    private void setVisibleAnim(View resId) {
-        setViewAnim(resId, 1.0f, 500, View.VISIBLE);
+    private ObjectAnimator setVisibleAnim(View resId) {
+        return setViewAnim(resId, 0.0f, 1.0f, 500);
     }
 
     private void refreshView(boolean foundNewUpdate, boolean network) {
-        setVisibleAnim(mDetailsView);
+        ObjectAnimator mDetailsView_duration = setVisibleAnim(mDetailsView);
+        AnimatorSet animatorSet = new AnimatorSet();
         if (network) {
             if (foundNewUpdate) {
-                setGoneAnim(mRefreshView);
-                setGoneAnim(textLastCheck);
-                setGoneAnim(mRefreshButton);
+                ObjectAnimator mRefreshView_duration = setGoneAnim(this.mRefreshView);
+                ObjectAnimator textLastCheck_duration = setGoneAnim(this.textLastCheck);
+                ObjectAnimator mRefreshButton_duration = setGoneAnim(this.mRefreshButton);
+                ObjectAnimator mNoNewUpdatesView_duration = setVisibleAnim(this.mNoNewUpdatesView);
+                animatorSet.playTogether(mDetailsView_duration, mRefreshView_duration, textLastCheck_duration, mRefreshButton_duration,
+                        mNoNewUpdatesView_duration);
+                animatorSet.start();
                 mNoNewUpdatesView.setText(R.string.new_updates_found_title);
                 mNoNewUpdatesView.setTextColor(getColor(R.color.theme_accent));
                 mAction.setVisibility(View.VISIBLE);
@@ -291,10 +279,13 @@ public class MainActivity extends BaseActivity {
                 setVisibleAnim(mBuildSize);
                 mShowChangelog.setVisibility(View.VISIBLE);
             }else{
-                setGoneAnim(mRefreshView);
-                setVisibleAnim(textLastCheck);
-                setVisibleAnim(mRefreshButton);
-                setVisibleAnim(mBuildSize);
+                ObjectAnimator mRefreshView_duration = setGoneAnim(this.mRefreshView);
+                ObjectAnimator textLastCheck_duration = setVisibleAnim(this.textLastCheck);
+                ObjectAnimator mRefreshButton_duration = setVisibleAnim(this.mRefreshButton);
+                ObjectAnimator mBuildSize_duration = setVisibleAnim(this.mBuildSize);
+                ObjectAnimator mNoNewUpdatesView_duration = setVisibleAnim(this.mNoNewUpdatesView);
+                animatorSet.playTogether(mDetailsView_duration, mRefreshView_duration, textLastCheck_duration, mRefreshButton_duration, mBuildSize_duration, mNoNewUpdatesView_duration);
+                animatorSet.start();
                 mNoNewUpdatesView.setText(R.string.main_no_updates);
                 mAction.setVisibility(View.GONE);
                 mBuildDate.setVisibility(View.GONE);
@@ -566,7 +557,7 @@ public class MainActivity extends BaseActivity {
                         showSnackbar(R.string.snack_updates_check_failed, Snackbar.LENGTH_LONG);
                     }
                     mAction.setVisibility(View.GONE);
-                    mDetailsView.setVisibility(View.GONE);
+                    //mDetailsView.setVisibility(View.GONE);
                     refreshUpdate(getUpdaterController().getLatestUpdate());
                     refreshAnimationStop();
                 });
