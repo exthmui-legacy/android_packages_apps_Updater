@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class NoticesActivity extends BaseActivity {
@@ -95,7 +96,7 @@ public class NoticesActivity extends BaseActivity {
 
         instance = getApplication();
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         RecyclerView noticeView = findViewById(R.id.notice_view);
         mNoticesListAdapter = new NoticesListAdapter(this, false);
@@ -211,6 +212,6 @@ public class NoticesActivity extends BaseActivity {
 
     @Override
     public void showSnackbar(int stringId, int duration) {
-        Snackbar.make(findViewById(R.id.main_container), stringId, duration).show();
+        Snackbar.make(findViewById(R.id.notice_view), stringId, duration).show();
     }
 }

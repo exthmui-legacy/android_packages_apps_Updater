@@ -1,21 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_all_updates"
-        android:icon="@drawable/ic_menu_history"
-        android:title="@string/menu_all_updates"
-        app:showAsAction="ifRoom" />
+            android:id="@+id/menu_all_updates"
+            android:icon="@drawable/ic_menu_history"
+            android:title="@string/menu_all_updates"
+            android:showAsAction="ifRoom"
+            app:showAsAction="ifRoom"
+            app:iconTint="?android:textColorPrimary"
+            tools:ignore="AppCompatResource"/>
 
     <item
-        android:id="@+id/menu_notices"
-        android:icon="@drawable/ic_menu_notice"
-        android:title="@string/title_notices"
-        app:showAsAction="ifRoom" />
+            android:id="@+id/menu_notices"
+            android:icon="@drawable/ic_menu_notice"
+            android:title="@string/title_notices"
+            android:showAsAction="ifRoom"
+            app:showAsAction="ifRoom"
+            app:iconTint="?android:textColorPrimary"
+            tools:ignore="AppCompatResource"/>
 
     <item
-        android:id="@+id/menu_preferences"
-        android:icon="@drawable/ic_menu_settings"
-        android:title="@string/menu_preferences"
-        app:showAsAction="ifRoom" />
+            android:id="@+id/menu_preferences"
+            android:icon="@drawable/ic_menu_settings"
+            android:title="@string/menu_preferences"
+            android:showAsAction="ifRoom"
+            app:showAsAction="ifRoom"
+            app:iconTint="?android:textColorPrimary"
+            tools:ignore="AppCompatResource"/>
 </menu>

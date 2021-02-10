@@ -117,27 +117,29 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageButton
-                android:id="@+id/update_action"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_gravity="center"
-                android:layout_weight="6"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/image_of_control_button"
-                android:src="@drawable/ic_pause" />
+                    android:id="@+id/update_action"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="6"
+                    android:tint="?android:textColorPrimary"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/image_of_control_button"
+                    android:src="@drawable/ic_pause" />
 
             <ImageButton
-                android:id="@+id/show_changelog"
-                style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_gravity="center"
-                android:layout_weight="4"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/icon_of_show_changelog_button"
-                android:src="@drawable/ic_expand_more"
-                android:text="@string/show_changelog" />
+                    android:id="@+id/show_changelog"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="4"
+                    android:tint="?android:textColorPrimary"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/icon_of_show_changelog_button"
+                    android:src="@drawable/ic_expand_more"
+                    android:text="@string/show_changelog" />
         </LinearLayout>
 
         <Space
@@ -148,17 +150,18 @@
             app:layout_constraintTop_toBottomOf="@id/build_size" />
 
         <RelativeLayout
-            android:id="@+id/changelog_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
-            android:orientation="vertical"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/build_size">
+                android:id="@+id/changelog_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:background="@drawable/shape_round"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/build_size">
 
             <TextView
                 android:id="@+id/changelog"

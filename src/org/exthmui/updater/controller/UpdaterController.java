@@ -367,7 +367,7 @@ public class UpdaterController {
             return false;
         }
         Update update = mDownloads.get(downloadId).mUpdate;
-        File destination = new File(mDownloadRoot, update.getName());
+        File destination = new File(mDownloadRoot, update.getFileName());
         if (destination.exists()) {
             destination = Utils.appendSequentialNumber(destination);
             Log.d(TAG, "Changing name with " + destination.getName());

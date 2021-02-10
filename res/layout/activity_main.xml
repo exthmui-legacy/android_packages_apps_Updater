@@ -1,195 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/main_container"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:theme="@style/AppTheme.AppBarOverlay">
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
+            style="@style/TransActionBar">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:textColor="?android:attr/textColorPrimary"
-            app:layout_collapseMode="pin" />
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:textColor="?android:attr/textColorPrimary"/>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <RelativeLayout
-        android:id="@+id/updates_details"
-        android:layout_marginTop="36dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/main_logo"
+    <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="48dp"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/exthmui_logo"
-            android:layout_centerHorizontal="true"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_logo_l" />
+            android:layout_height="match_parent"/>
 
-        <TextView
-            android:id="@+id/main_no_new_updates_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/main_logo"
-            android:textSize="32sp"
-            android:layout_centerHorizontal="true"
-            android:fontFamily="sans-serif-bold"
-            android:text="@string/main_no_updates"
-            android:textColor="?android:textColorPrimary" />
+</LinearLayout>
 
-        <TextView
-            android:id="@+id/main_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/main_no_new_updates_view"
-            android:fontFamily="sans-serif-medium"
-            android:layout_centerHorizontal="true"
-            android:textSize="25sp"
-            android:textColor="#B2000000"
-            android:layout_marginTop="10dp"
-            tools:text="exTHmUI 10.0" />
-
-        <TextView
-            android:id="@+id/main_android_version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/main_title"
-            android:layout_marginTop="10dp"
-            android:textColor="#99000000"
-            tools:text="Android 10" />
-
-        <TextView
-            android:id="@+id/main_last_check"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="7dp"
-            android:textColor="#a6000000"
-            android:layout_below="@+id/main_android_version"
-            android:text="@string/main_last_updates_check" />
-
-        <TextView
-            android:id="@+id/main_build_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/main_android_version"
-            android:maxLines="1"
-            android:textSize="14sp"
-            android:textColor="#a6000000"
-            android:layout_marginTop="7dp"
-            tools:text="01 January 2020" />
-
-        <TextView
-            android:id="@+id/main_build_size"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/main_build_date"
-            android:layout_marginTop="16dp"
-            android:layout_centerHorizontal="true"
-            android:singleLine="true"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="#c5000000"
-            tools:text="300 PB"
-            tools:visibility="invisible" />
-
-        <Button
-            android:id="@+id/main_check_for_updates"
-            style="?android:attr/buttonBarButtonStyle"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:padding="15dp"
-            android:textSize="15sp"
-            android:layout_marginTop="50dp"
-            android:layout_below="@+id/main_build_date"
-            android:text="@string/check_for_updates" />
-
-        <Button
-            android:id="@+id/main_show_changelog"
-            style="?android:attr/buttonBarButtonStyle"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/main_build_date"
-            android:padding="5dp"
-            android:layout_marginTop="50dp"
-            android:layout_centerHorizontal="true"
-            android:text="@string/more_information" />
-
-        <RelativeLayout
-            android:layout_below="@id/main_show_changelog"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="24dp"
-            android:paddingEnd="24dp">
-
-            <ProgressBar
-                android:id="@+id/main_progress_bar"
-                style="@style/ProgressBar_Scale_Main"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:visibility="invisible"
-                tools:progress="28"
-                tools:visibility="visible" />
-
-            <TextView
-                android:id="@+id/main_progress_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="marquee"
-                android:singleLine="true"
-                android:visibility="invisible"
-                android:layout_centerInParent="true"
-                tools:text="46.8 of 300 PB (3 years left) • 15.6%"
-                tools:visibility="visible" />
-
-        </RelativeLayout>
-
-    </RelativeLayout>
-
-    <ProgressBar
-        android:id="@+id/main_refreshing"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="12dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/main_action"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="24dp"
-        android:clickable="true"
-        app:srcCompat="@drawable/ic_file_download" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
 

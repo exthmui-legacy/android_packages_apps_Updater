@@ -27,7 +27,6 @@ import android.os.SystemProperties;
 import android.os.storage.StorageManager;
 import android.util.Base64;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -59,7 +58,7 @@ public class Utils {
 
     public static File getDownloadPath(Context context) {
         String path = androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).getString("download_path", context.getString(R.string.download_path));
-        return new File(path.equals("") ? path : context.getString(R.string.download_path));
+        return new File(path.equals("") ? context.getString(R.string.download_path) : path);
     }
 
     public static File getExportPath(Context context) {
@@ -87,17 +86,16 @@ public class Utils {
         Update update = new Update();
         update.setVersionName(object.getString("name"));
         update.setDevice(object.getString("device"));
-        update.setPType(object.getString("packagetype"));
+        update.setPackageType(object.getString("packagetype"));
         update.setRequirement(object.getLong("requirement"));
-        update.setTimestamp(object.getLong("timestamp"));
         update.setChangeLog(new String(android.util.Base64.decode(object.getString("changelog").getBytes(), Base64.DEFAULT)));
-        update.setName(object.getString("filename"));
+        update.setTimestamp(object.getLong("timestamp"));
+        update.setFileName(object.getString("filename"));
         update.setDownloadId(object.getString("sha1"));
-        update.setType(object.getString("romtype"));
+        update.setROMType(object.getString("romtype"));
         update.setFileSize(object.getLong("size"));
         update.setDownloadUrl(object.getString("url"));
-        update.setImageUrl(object.getString("imageurl"));
-        update.setVersion(object.getString("version"));
+        update.setMaintainer(object.getString("maintainer"));
         return update;
     }
 
@@ -109,32 +107,32 @@ public class Utils {
 
     public static boolean isCompatible(UpdateBaseInfo update) {
         // TODO: Remove this before commit
-        if (update.getVersion().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION)) < 0) {
-            Log.d(TAG, update.getName() + " is older than current Android version");
-            return false;
-        }
-        if (!SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) &&
-                update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
-            Log.d(TAG, update.getName() + " is older than/equal to the current build");
-            return false;
-        }
-        if (!update.getType().equalsIgnoreCase(SystemProperties.get(Constants.PROP_RELEASE_TYPE))) {
-            Log.d(TAG, update.getName() + " has type " + update.getType());
-            return false;
-        }
-        if (!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))) {
-            Log.d(TAG, update.getName() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
-            return false;
-        }
+//        if (update.getVersionName().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION)) < 0) {
+//            Log.d(TAG, update.getExthmVersion() + " is older than current Android version");
+//            return false;
+//        }
+//        if (!SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) &&
+//                update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
+//            Log.d(TAG, update.getExthmVersion() + " is older than/equal to the current build");
+//            return false;
+//        }
+//        if (!update.getROMType().equalsIgnoreCase(SystemProperties.get(Constants.PROP_RELEASE_TYPE))) {
+//            Log.d(TAG, update.getExthmVersion() + " has type " + update.getROMType());
+//            return false;
+//        }
+//        if (!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))) {
+//            Log.d(TAG, update.getExthmVersion() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
+//            return false;
+//        }
         return true;
     }
 
     public static boolean canInstall(UpdateBaseInfo update) {
-        return !update.getDownloadUrl().equals("") && update.getDownloadUrl() != null &&
+        return true;/*!(update.getDownloadUrl().equals("") && update.getDownloadUrl() != null) &&
                 !((update.getRequirement() >= SystemProperties.getInt(Constants.PROP_BUILD_DATE, 0) &&
-                        update.getPType().equals("incremental"))) &&
-                update.getVersion().equalsIgnoreCase(
-                        SystemProperties.get(Constants.PROP_BUILD_VERSION));
+                        update.getPackageType().equals("incremental"))) &&
+                update.getExthmVersion().equalsIgnoreCase(
+                        SystemProperties.get(Constants.PROP_BUILD_VERSION));*/
     }
 
     public static List<UpdateInfo> parseJsonUpdate(File file, boolean compatibleOnly)
@@ -159,7 +157,7 @@ public class Utils {
                 if (!compatibleOnly || isCompatible(update)) {
                     updates.add(update);
                 } else {
-                    Log.d(TAG, "Ignoring incompatible update " + update.getName());
+                    Log.d(TAG, "Ignoring incompatible update " + update.getDownloadId());
                     updates.remove(update);
                 }
             } catch (JSONException e) {
@@ -190,14 +188,14 @@ public class Utils {
                 NoticeInfo notice = parseJsonNotice(noticesList.getJSONObject(i));
                 notices.add(notice);
             } catch (JSONException e) {
-                Log.e(TAG, "Could not parse update object, index=" + i, e);
+                Log.e(TAG, "Could not parse notice object, index=" + i, e);
             }
         }
         /*
          * Do not put any same id notices in the json file!!!!!!!!
          */
         //对id进行排序 大>小
-        Log.d(TAG, "Sorting updates(list).");
+        Log.d(TAG, "Sorting notices(list).");
         notices.sort(Comparator.comparing(NoticeInfo::getId));
         return notices;
     }

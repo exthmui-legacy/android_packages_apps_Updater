@@ -15,20 +15,30 @@
  */
 package org.exthmui.updater.model;
 
-import org.exthmui.updater.ui.OnlineImageView;
-
 public interface UpdateBaseInfo {
+
     String getVersionName();
+
     String getDevice();
-    String getPType();
-    long getRequirement();
+
+    String getPackageType();// The type of package (full/patch)
+
+    long getRequirement();// The smallest timestamp of which the new package can be installed on
+
     String getChangeLog();
+
     long getTimestamp();
-    String getName();
-    String getDownloadId();
-    String getType();
+
+    String getFileName();
+
+    String getDownloadId();// The id of the package, is expected to be sha-1 of the file
+
+    String getROMType();// The rom type, must be equal to the release type of the package installed
+
     long getFileSize();
+
     String getDownloadUrl();
-    String getImageUrl();
-    String getVersion();
+
+    String getMaintainer();
+
 }

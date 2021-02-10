@@ -17,7 +17,6 @@ package org.exthmui.updater.misc;
 
 import android.content.Context;
 import android.content.res.Resources;
-
 import org.exthmui.updater.R;
 
 import java.text.DateFormat;

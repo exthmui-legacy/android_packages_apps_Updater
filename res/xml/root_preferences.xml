@@ -27,10 +27,10 @@
 
     <PreferenceCategory app:title="@string/setting_download_settings">
         <EditTextPreference
-            android:key="download_path"
-            android:selectable="false"
-            android:summary="@string/download_path"
-            android:title="@string/setting_save_path" />
+                android:key="download_path"
+                android:selectable="true"
+                android:summary="@string/download_path"
+                android:title="@string/setting_save_path" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/setting_update_settings">

@@ -137,15 +137,6 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
             @Override
             public void onSuccess(File destination) {
                 jsonNew2.renameTo(json2);
-                /*try {
-                    if (json2.exists() && Utils.checkForNewUpdates(json2, jsonNew2, false)) {
-                        showNotification(context);
-                        updateRepeatingUpdatesCheck(context);
-                    }
-                    jsonNew2.renameTo(json2);
-                } catch (IOException | JSONException e) {
-                    Log.e(TAG, "Could not parse nnotice list", e);
-                }*/
             }
         };
 

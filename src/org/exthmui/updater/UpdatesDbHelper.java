@@ -21,7 +21,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
-
 import org.exthmui.updater.model.Update;
 
 import java.io.File;
@@ -82,8 +81,8 @@ public class UpdatesDbHelper extends SQLiteOpenHelper {
         values.put(UpdateEntry.COLUMN_NAME_PATH, update.getFile().getAbsolutePath());
         values.put(UpdateEntry.COLUMN_NAME_DOWNLOAD_ID, update.getDownloadId());
         values.put(UpdateEntry.COLUMN_NAME_TIMESTAMP, update.getTimestamp());
-        values.put(UpdateEntry.COLUMN_NAME_TYPE, update.getType());
-        values.put(UpdateEntry.COLUMN_NAME_VERSION, update.getVersion());
+        values.put(UpdateEntry.COLUMN_NAME_TYPE, update.getROMType());
+        values.put(UpdateEntry.COLUMN_NAME_VERSION, update.getVersionName());
         values.put(UpdateEntry.COLUMN_NAME_SIZE, update.getFileSize());
         return db.insert(UpdateEntry.TABLE_NAME, null, values);
     }
@@ -95,8 +94,8 @@ public class UpdatesDbHelper extends SQLiteOpenHelper {
         values.put(UpdateEntry.COLUMN_NAME_PATH, update.getFile().getAbsolutePath());
         values.put(UpdateEntry.COLUMN_NAME_DOWNLOAD_ID, update.getDownloadId());
         values.put(UpdateEntry.COLUMN_NAME_TIMESTAMP, update.getTimestamp());
-        values.put(UpdateEntry.COLUMN_NAME_TYPE, update.getType());
-        values.put(UpdateEntry.COLUMN_NAME_VERSION, update.getVersion());
+        values.put(UpdateEntry.COLUMN_NAME_TYPE, update.getROMType());
+        values.put(UpdateEntry.COLUMN_NAME_VERSION, update.getVersionName());
         values.put(UpdateEntry.COLUMN_NAME_SIZE, update.getFileSize());
         return db.insertWithOnConflict(UpdateEntry.TABLE_NAME, null, values, conflictAlgorithm);
     }
@@ -173,15 +172,15 @@ public class UpdatesDbHelper extends SQLiteOpenHelper {
                 Update update = new Update();
                 int index = cursor.getColumnIndex(UpdateEntry.COLUMN_NAME_PATH);
                 update.setFile(new File(cursor.getString(index)));
-                update.setName(update.getFile().getName());
+                update.setFileName(update.getFile().getName());
                 index = cursor.getColumnIndex(UpdateEntry.COLUMN_NAME_DOWNLOAD_ID);
                 update.setDownloadId(cursor.getString(index));
                 index = cursor.getColumnIndex(UpdateEntry.COLUMN_NAME_TIMESTAMP);
                 update.setTimestamp(cursor.getLong(index));
                 index = cursor.getColumnIndex(UpdateEntry.COLUMN_NAME_TYPE);
-                update.setType(cursor.getString(index));
+                update.setROMType(cursor.getString(index));
                 index = cursor.getColumnIndex(UpdateEntry.COLUMN_NAME_VERSION);
-                update.setVersion(cursor.getString(index));
+                update.setVersionName(cursor.getString(index));
                 index = cursor.getColumnIndex(UpdateEntry.COLUMN_NAME_STATUS);
                 update.setPersistentStatus(cursor.getInt(index));
                 index = cursor.getColumnIndex(UpdateEntry.COLUMN_NAME_SIZE);

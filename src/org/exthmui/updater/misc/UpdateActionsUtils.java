@@ -17,16 +17,13 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.preference.PreferenceManager;
-
 import com.google.android.material.snackbar.Snackbar;
-
 import org.exthmui.updater.BaseActivity;
 import org.exthmui.updater.ExportUpdateService;
 import org.exthmui.updater.R;
@@ -139,6 +136,7 @@ public class UpdateActionsUtils {
         button.setOnClickListener(v -> {
             if (clickListener != null) {
                 clickListener.onClick(v);
+
             }
         });
     }
@@ -186,7 +184,7 @@ public class UpdateActionsUtils {
     }
 
     public static void exportUpdate(Context context, UpdateInfo update) {
-        File dest = new File(Utils.getExportPath(context), update.getName());
+        File dest = new File(Utils.getExportPath(context), update.getFileName());
         if (dest.exists()) {
             dest = Utils.appendSequentialNumber(dest);
         }
@@ -219,7 +217,7 @@ public class UpdateActionsUtils {
                                 preferences.edit()
                                         .putBoolean(Constants.PREF_MOBILE_DATA_WARNING, false)
                                         .apply();
-                                activity.supportInvalidateOptionsMenu();
+//                                activity.supportInvalidateOptionsMenu();
                             }
                             controller.startDownload(downloadId);
                         })

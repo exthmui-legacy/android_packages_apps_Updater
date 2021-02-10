@@ -1,6 +1,8 @@
 package org.exthmui.updater;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import androidx.annotation.Nullable;
@@ -11,7 +13,7 @@ import androidx.preference.*;
 import java.util.Objects;
 import java.util.Set;
 
-public class AdvancedSettings extends AppCompatActivity{
+public class AdvancedSettings extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +28,7 @@ public class AdvancedSettings extends AppCompatActivity{
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
@@ -36,24 +39,43 @@ public class AdvancedSettings extends AppCompatActivity{
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
+        private static final int REQUEST_CODE_DL_DIR = 1;
         private SharedPreferences mSharedPreferences;
         private MultiSelectListPreference mPrefAutoDownload;
         private EditTextPreference mDownloadPath;
 
         @Override
-        public void onCreate(Bundle savedInstanceState){
+        public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(Objects.requireNonNull(getContext()));
-            mPrefAutoDownload = (MultiSelectListPreference) findPreference("auto_download");
-            mDownloadPath = (EditTextPreference) findPreference("downcload_path");
-            mDownloadPath = (EditTextPreference) findPreference("download_path");
+            mPrefAutoDownload = findPreference("auto_download");
+            mDownloadPath = findPreference("download_path");
 
             mPrefAutoDownload.setOnPreferenceChangeListener(this::OnPreferenceChange);
 
             mDownloadPath.setOnPreferenceChangeListener(this::OnPreferenceChange);
 
+            mDownloadPath.setOnPreferenceClickListener(p -> {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                startActivityForResult(intent, REQUEST_CODE_DL_DIR);
+                return false;
+            });
             OnPreferenceChange(mPrefAutoDownload, null);
             OnPreferenceChange(mDownloadPath, null);
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+            if (resultCode == RESULT_OK) {
+                switch (requestCode) {
+                    case REQUEST_CODE_DL_DIR:
+                        Uri uri = data.getData();
+                        String path = uri.getPath();
+                        mDownloadPath.setText(path);
+                        break;
+                }
+            }
         }
 
         @Override
@@ -105,7 +127,11 @@ public class AdvancedSettings extends AppCompatActivity{
                     preference.setSummary(summary);
                 }
                 if (preference == mDownloadPath) {
-                    if (newValue == null || newValue == "") {
+                    if (newValue == null) {
+                        mDownloadPath.setSummary(
+                                mSharedPreferences.getString(preference.getKey(), getString(R.string.download_path)));
+                        return false;
+                    } else if (newValue == "") {
                         mDownloadPath.setText(getString(R.string.download_path));
                         return false;
                     } else preference.setSummary((String) newValue);

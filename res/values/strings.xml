@@ -34,10 +34,10 @@
           {type} - Package type
     -->
     <string name="updates_server_url" translatable="false">
-        https://raw.githubusercontent.com/exthmui/update_scripts/master/{device}/updates.json
+        https://exthmui.github.io/update_scripts/{device}/updates.json
     </string>
     <string name="notices_server_url" translatable="false">
-        https://raw.githubusercontent.com/exthmui/update_scripts/master/notices.json
+        https://exthmui.github.io/update_scripts/notices.json
     </string>
     <!--
     <string name="text_update_type_incremental">Incremental</string>
@@ -261,8 +261,9 @@
     <string name="more_information">Changelogs</string>
     <string name="importance_icon" translatable="false">Importance icon</string>
     <string name="build_version_date">"Version date: "</string>
-    <string name="checking_updates">Checking updates...</string>
+    <string name="checking_updates">Checking updates…</string>
     <string name="build_size_text">Size:</string>
+    <string name="build_maintainer_text">Maintainer:</string>
     <string name="network_not_available">The network isn\'t available</string>
     <string name="menu_all_notices">Notices</string>
 </resources>

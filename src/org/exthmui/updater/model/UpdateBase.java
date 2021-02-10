@@ -15,148 +15,132 @@
  */
 package org.exthmui.updater.model;
 
-import android.media.Image;
-
-import org.exthmui.updater.ui.OnlineImageView;
-
 public class UpdateBase implements UpdateBaseInfo {
 
     private String mVersionName;
-    private String mName;
     private String mDevice;
+    private String mPackageType;
     private long mRequirement;
-    private String mPType;//Packagetype:full/...
     private String mChangeLog;
-    private String mImageUrl;
-    private String mDownloadUrl;
-    private String mDownloadId;
     private long mTimestamp;
-    private String mType;
-    private String mVersion;
+    private String mFileName;
+    private String mDownloadId;
+    private String mROMType;
     private long mFileSize;
+    private String mDownloadUrl;
+    private String mMaintainer;
 
     public UpdateBase() {
     }
 
-    public UpdateBase(UpdateBaseInfo update) {
-        mVersionName = update.getVersionName();
-        mName = update.getName();
-        mDevice = update.getDevice();
-        mPType = update.getPType();
-        mChangeLog = update.getChangeLog();
-        mImageUrl = update.getImageUrl();
-        mDownloadUrl = update.getDownloadUrl();
-        mDownloadId = update.getDownloadId();
-        mTimestamp = update.getTimestamp();
-        mType = update.getType();
-        mVersion = update.getVersion();
-        mFileSize = update.getFileSize();
+    public UpdateBase(UpdateBaseInfo updateBaseInfo) {
+        mVersionName = updateBaseInfo.getVersionName();
+        mDevice = updateBaseInfo.getDevice();
+        mPackageType = updateBaseInfo.getPackageType();
+        mRequirement = updateBaseInfo.getRequirement();
+        mChangeLog = updateBaseInfo.getChangeLog();
+        mTimestamp = updateBaseInfo.getTimestamp();
+        mFileName = updateBaseInfo.getFileName();
+        mDownloadId = updateBaseInfo.getDownloadId();
+        mROMType = updateBaseInfo.getROMType();
+        mFileSize = updateBaseInfo.getFileSize();
+        mDownloadUrl = updateBaseInfo.getDownloadUrl();
+        mMaintainer = updateBaseInfo.getMaintainer();
     }
 
-    @Override
     public String getVersionName() {
         return mVersionName;
     }
 
-    public void setVersionName(String vName) {
-        mVersionName = vName;
+    public void setVersionName(String versionName) {
+        this.mVersionName = versionName;
     }
 
-    @Override
-    public String getName() {
-        return mName;
-    }
-
-    public void setName(String name) {
-        mName = name;
-    }
-
-    @Override
-    public long getRequirement() {
-        return mRequirement;
-    }
-
-    public void setRequirement(long requirement) { mRequirement = requirement; }
-
-    @Override
     public String getDevice() {
         return mDevice;
     }
 
-    public void setDevice(String device) { mDevice = device; }
-
-    @Override
-    public String getPType() {
-        return mPType;
+    public void setDevice(String device) {
+        this.mDevice = device;
     }
 
-    public void setPType(String packageType) { mPType = packageType; }
+    public String getPackageType() {
+        return mPackageType;
+    }
 
-    @Override
+    public void setPackageType(String packageType) {
+        this.mPackageType = packageType;
+    }
+
+    public long getRequirement() {
+        return mRequirement;
+    }
+
+    public void setRequirement(long requirement) {
+        this.mRequirement = requirement;
+    }
+
     public String getChangeLog() {
         return mChangeLog;
     }
 
-    public void setChangeLog(String changeLog) { mChangeLog = changeLog; }
-
-    @Override
-    public String getImageUrl() {
-        return mImageUrl;
+    public void setChangeLog(String changeLog) {
+        this.mChangeLog = changeLog;
     }
 
-    public void setImageUrl(String imageUrl) { mImageUrl = imageUrl; }
-
-    @Override
-    public String getDownloadId() {
-        return mDownloadId;
-    }
-
-    public void setDownloadId(String downloadId) {
-        mDownloadId = downloadId;
-    }
-
-    @Override
     public long getTimestamp() {
         return mTimestamp;
     }
 
     public void setTimestamp(long timestamp) {
-        mTimestamp = timestamp;
+        this.mTimestamp = timestamp;
     }
 
-    @Override
-    public String getType() {
-        return mType;
+    public String getFileName() {
+        return mFileName;
     }
 
-    public void setType(String type) {
-        mType = type;
+    public void setFileName(String fileName) {
+        this.mFileName = fileName;
     }
 
-    @Override
-    public String getVersion() {
-        return mVersion;
+    public String getDownloadId() {
+        return mDownloadId;
     }
 
-    public void setVersion(String version) {
-        mVersion = version;
+    public void setDownloadId(String downloadId) {
+        this.mDownloadId = downloadId;
     }
 
-    @Override
-    public String getDownloadUrl() {
-        return mDownloadUrl;
+    public String getROMType() {
+        return mROMType;
     }
 
-    public void setDownloadUrl(String downloadUrl) {
-        mDownloadUrl = downloadUrl;
+    public void setROMType(String ROMType) {
+        this.mROMType = ROMType;
     }
 
-    @Override
     public long getFileSize() {
         return mFileSize;
     }
 
     public void setFileSize(long fileSize) {
-        mFileSize = fileSize;
+        this.mFileSize = fileSize;
+    }
+
+    public String getDownloadUrl() {
+        return mDownloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.mDownloadUrl = downloadUrl;
+    }
+
+    public String getMaintainer() {
+        return mMaintainer;
+    }
+
+    public void setMaintainer(String maintainer) {
+        this.mMaintainer = maintainer;
     }
 }
