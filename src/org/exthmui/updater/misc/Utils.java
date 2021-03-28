@@ -106,24 +106,23 @@ public class Utils {
     }
 
     public static boolean isCompatible(UpdateBaseInfo update) {
-        // TODO: Remove this before commit
-//        if (update.getVersionName().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION)) < 0) {
-//            Log.d(TAG, update.getExthmVersion() + " is older than current Android version");
-//            return false;
-//        }
-//        if (!SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) &&
-//                update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
-//            Log.d(TAG, update.getExthmVersion() + " is older than/equal to the current build");
-//            return false;
-//        }
-//        if (!update.getROMType().equalsIgnoreCase(SystemProperties.get(Constants.PROP_RELEASE_TYPE))) {
-//            Log.d(TAG, update.getExthmVersion() + " has type " + update.getROMType());
-//            return false;
-//        }
-//        if (!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))) {
-//            Log.d(TAG, update.getExthmVersion() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
-//            return false;
-//        }
+        if (update.getVersionName().compareTo(SystemProperties.get(Constants.PROP_BUILD_VERSION)) < 0) {
+            Log.d(TAG, update.getVersionName() + " is older than current Android version");
+            return false;
+        }
+        if (!SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) &&
+                update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
+            Log.d(TAG, update.getVersionName() + " is older than/equal to the current build");
+            return false;
+        }
+        if (!update.getROMType().equalsIgnoreCase(SystemProperties.get(Constants.PROP_RELEASE_TYPE))) {
+            Log.d(TAG, update.getVersionName() + " has type " + update.getROMType());
+            return false;
+        }
+        if (!update.getDevice().equals(SystemProperties.get(Constants.PROP_DEVICE))) {
+            Log.d(TAG, update.getVersionName() + " is made for " + update.getDevice() + " but this is a " + SystemProperties.get(Constants.PROP_DEVICE));
+            return false;
+        }
         return true;
     }
 
